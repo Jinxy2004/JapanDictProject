@@ -7,7 +7,7 @@ conn = sqlite3.connect('test_total.db')
 cursor = conn.cursor()
 
 import xml.etree.ElementTree as eTree
-
+i = 3
 tree = eTree.parse('kanjidic2.xml')
 root = tree.getroot()
 
