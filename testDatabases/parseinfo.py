@@ -3,12 +3,13 @@ __author__ = 'admin'
 import sqlite3
 import time
 
-conn = sqlite3.connect('test_total.db')
+# Insert path to database/kanji xml file here
+conn = sqlite3.connect('testDatabases/test_total.db')
 cursor = conn.cursor()
 
 import xml.etree.ElementTree as eTree
 
-tree = eTree.parse('kanjidic2.xml')
+tree = eTree.parse('testDatabases/kanjidic2.xml')
 root = tree.getroot()
 
 # Inserts data into kanji table
