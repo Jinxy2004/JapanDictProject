@@ -17,7 +17,7 @@ i = 0
 
 start = time.time()
 for ent in root.findall('entry'):
-
+    
     # Initialization variables
     ent_seq = 0
     keb_element = []

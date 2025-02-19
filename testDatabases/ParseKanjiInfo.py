@@ -59,7 +59,7 @@ for k in root.findall("character"):
     kun_reading = "" 
     meaning = ""
     nanori = ""
-
+    
     # Kanji literal
     k_literal = k.find("literal").text
 
