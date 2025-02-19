@@ -20,18 +20,21 @@ for ent in root.findall('entry'):
 
     # Initialization variables
     ent_seq = 0
-    keb_element = ()
+    keb_element = []
 
     # Getting ID for each entry
     ent_seq = ent.find('ent_seq').text
 
     # Getting Kanji element and related info
-    for ele in ent.findall('k_ele'):
-        keb_element.apppend()
+    #for k_ele in ent.findall('k_ele'):
+        
+        #keb_element.append(k_ele.text)
+        
 
 
     # Test Statements
-    print("Ent seq: " + ent_seq)
+    print("Ent seq: ", ent_seq)
+    print("Keb elemnts: ", keb_element)
 
     i += 1
     if(i == 10):

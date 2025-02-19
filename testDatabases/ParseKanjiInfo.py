@@ -67,7 +67,7 @@ for k in root.findall("character"):
     for cp_val in k.find("codepoint"):
         if(cp_val.get('cp_type') == "ucs"):
             uni_value = cp_val.text
-
+    
     # Finds radical number
     for rad_val in k.find("radical"):
         if(rad_val.get('rad_type') == "classical"):
@@ -89,7 +89,7 @@ for k in root.findall("character"):
             var_type = val.get("var_type")
             var_code = val.text
             kanji_variants.append((var_type,var_code))
-
+    
     # Handles Dict References
     try:
         for val in k.find("dic_number"):
