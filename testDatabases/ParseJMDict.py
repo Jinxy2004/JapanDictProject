@@ -12,8 +12,11 @@ import xml.etree.ElementTree as eTree
 tree = eTree.parse('testDatabases/JMdict_e.xml')
 root = tree.getroot()
 
-i = 0
+# 
 
+
+
+i = 0
 start = time.time()
 for ent in root.findall('entry'):
     
@@ -21,7 +24,7 @@ for ent in root.findall('entry'):
     ent_seq = 0
     kanji_elements = []
     reading_elements = []
-
+    sense_elements = []
     
     # Getting ID for each entry
     ent_seq = ent.find('ent_seq').text
@@ -74,16 +77,75 @@ for ent in root.findall('entry'):
         }
         reading_elements.append(reading_entry)
 
-    #
+    # Senses - works same as kanji/reading variables
+    for sense in ent.findall('sense'):
+        sense_info = []
+        dialects = []
+        stagk = []
+        gloss = []
+        stagr = []
+        antonyms = []
+        part_of_speech = []
+        field = []
+        cross_references = []
+        misc = []
+        loanword_source = []
+        for val in sense.findall('stagk'):
+            stagk.append(val.text)
+        for val in sense.findall('stagr'):
+            stagr.append(val.text)
+        for val in sense.findall('pos'):
+            part_of_speech.append(val.text)
+        for val in sense.findall('xref'):
+            cross_references.append(val.text)
+        for val in sense.findall('ant'):
+            antonyms.append(val.text)
+        for val in sense.findall('field'):
+            field.append(val.text)
+        for val in sense.findall('misc'):
+            misc.append(val.text)
+        for val in sense.findall('s_inf'):
+            sense_info.append(val.text)
+        for val in sense.findall('lsource'):
+            loanword_source.append(val.text)
+        for val in sense.findall('dial'):
+            dialects.append(val.text)
+        for val in sense.findall('gloss'):
+            gloss.append(val.text)
 
-    #'''
+        sense_entry = {
+            "stagk": stagk,
+            "stagr": stagr,
+            "pos": part_of_speech,
+            "xref": cross_references,
+            "ant": antonyms,
+            "field": field,
+            "misc": misc,
+            "s_inf": sense_info,
+            "lsource": loanword_source,
+            "dialect": dialects,
+            "gloss": gloss
+        }
+
+        sense_elements.append(sense_entry)
+
+    '''
     # Test Statements
     print("Ent seq: ", ent_seq)
     print("Kanji Elements: ", kanji_elements)
     print("Reading Elements: ", reading_elements)
+    print("Sense: ", sense_elements)
     print("----------------------")
-    #'''
+    '''
+    #```
     i += 1
-    if(i == 25):
+    if(i == 5):
         break
+    #``
 
+conn.commit()  
+cursor.close()  
+conn.close()  
+    
+end = time.time()
+print("Time taken: ",(end-start) * 10**3, "ms")   
