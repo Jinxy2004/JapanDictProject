@@ -1,20 +1,18 @@
 __author__ = 'admin'
 
-import sqlite3
-import time
 
-# Insert path to database/kanji xml file here
-conn = sqlite3.connect('testDatabases/test_total.db')
-cursor = conn.cursor()
+import time
+import jmDictInserts as ins
+import sqlite3
+
 
 import xml.etree.ElementTree as eTree
 
 tree = eTree.parse('testDatabases/JMdict_e.xml')
 root = tree.getroot()
 
-# 
-
-
+conn = sqlite3.connect('testDatabases/test_total.db')
+cursor = conn.cursor()
 
 i = 0
 start = time.time()
@@ -129,6 +127,10 @@ for ent in root.findall('entry'):
 
         sense_elements.append(sense_entry)
 
+    lastRow = ins.insertEntry(ent_seq,cursor)
+    lastRow = ins.insertSense(lastRow,cursor)
+    ins.insertStagk(sense_elements,lastRow,cursor)
+    
     '''
     # Test Statements
     print("Ent seq: ", ent_seq)
@@ -139,13 +141,12 @@ for ent in root.findall('entry'):
     '''
     #```
     i += 1
-    if(i == 5):
+    if(i == 35):
         break
     #``
 
-conn.commit()  
-cursor.close()  
-conn.close()  
-    
+conn.commit()
+cursor.close()
+conn.close()
 end = time.time()
 print("Time taken: ",(end-start) * 10**3, "ms")   
