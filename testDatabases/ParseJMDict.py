@@ -126,10 +126,22 @@ for ent in root.findall('entry'):
         }
 
         sense_elements.append(sense_entry)
-
-    lastRow = ins.insertEntry(ent_seq,cursor)
-    lastRow = ins.insertSense(lastRow,cursor)
+    
+    entLastRow = ins.insertEntry(ent_seq,cursor)
+    for i in range(len(sense_elements)):
+        lastRow = ins.insertSense(entLastRow,cursor)
     ins.insertStagk(sense_elements,lastRow,cursor)
+    ins.insertStagr(sense_elements,lastRow,cursor)
+    ins.insertPOS(sense_elements,lastRow,cursor)
+    ins.insertCrossReferences(sense_elements,lastRow,cursor)
+    ins.insertAntonyms(sense_elements,lastRow,cursor)
+    ins.insertField(sense_elements,lastRow,cursor)
+    ins.insertMisc(sense_elements,lastRow,cursor)
+    ins.insertSenseInfo(sense_elements,lastRow,cursor)
+    ins.insertLoanwordSource(sense_elements,lastRow,cursor)
+    ins.insertDialect(sense_elements,lastRow,cursor)
+    ins.insertGloss(sense_elements,lastRow,cursor)
+    
     
     '''
     # Test Statements
@@ -142,6 +154,7 @@ for ent in root.findall('entry'):
     #```
     i += 1
     if(i == 35):
+        print("Loop broke: ",i)
         break
     #``
 

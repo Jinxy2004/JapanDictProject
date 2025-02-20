@@ -1,3 +1,13 @@
+DELETE FROM stgar;
+DELETE FROM parts_of_speech;
+DELETE FROM cross_references;
+DELETE FROM antonyms;
+DELETE FROM field;
+DELETE FROM misc;
+DELETE FROM sense_info;
+DELETE FROM loanword_source;
+DELETE FROM dialect;
+DELETE FROM gloss;
 DELETE FROM stagk;
 DELETE FROM senses;
 DELETE FROM entries;
