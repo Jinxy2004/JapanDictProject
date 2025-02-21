@@ -1,4 +1,5 @@
-DELETE FROM stgar;
+DELETE FROM sqlite_sequence;
+DELETE FROM stagr ;
 DELETE FROM parts_of_speech;
 DELETE FROM cross_references;
 DELETE FROM antonyms;

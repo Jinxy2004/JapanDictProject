@@ -14,6 +14,19 @@ def insertSense(lastRow,cursor):
     cursor.execute(sense_query,[lastRow])
     return cursor.lastrowid
 
+def insertAll(sense,lastRow,cursor):
+    insertStagk(sense,lastRow,cursor)
+    insertStagr(sense,lastRow,cursor)
+    insertPOS(sense,lastRow,cursor)
+    insertCrossReferences(sense,lastRow,cursor)
+    insertAntonyms(sense,lastRow,cursor)
+    insertField(sense,lastRow,cursor)
+    insertMisc(sense,lastRow,cursor)
+    insertSenseInfo(sense,lastRow,cursor)
+    insertLoanwordSource(sense,lastRow,cursor)
+    insertDialect(sense,lastRow,cursor)
+    insertGloss(sense,lastRow,cursor)
+
 def insertStagk(sense, lastRow,cursor):
     query = ('''INSERT INTO stagk (kanjis_restricted_to,senses_id)
              VALUES(?,?)''')
