@@ -130,17 +130,24 @@ for ent in root.findall('entry'):
     entLastRow = ins.insertEntry(ent_seq,cursor)
     for j in range(len(sense_elements)):
         lastRow = ins.insertSense(entLastRow,cursor)
-        ins.insertAll(sense_elements,lastRow,cursor)
+        ins.insertAllSenses(sense_elements[j],lastRow,cursor)
+    if kanji_elements:
+        for k in range(len(kanji_elements)):
+            lastKRow = ins.insertKanjiElement(entLastRow,kanji_elements[k],cursor)
+            ins.insertAllKan(kanji_elements[k],lastKRow,cursor)
+    
+        
     
     
-    '''
+    
     # Test Statements
+    #'''
     print("Ent seq: ", ent_seq)
     print("Kanji Elements: ", kanji_elements)
     print("Reading Elements: ", reading_elements)
     print("Sense: ", sense_elements)
     print("----------------------")
-    '''
+    #'''
     #```
     i += 1
     if(i == 25):

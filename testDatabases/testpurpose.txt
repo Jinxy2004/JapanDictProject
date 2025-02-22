@@ -1,4 +1,7 @@
 DELETE FROM sqlite_sequence;
+DELETE FROM kanji_info;
+DELETE FROM kanji_priority;
+DELETE FROM kanji_elements;
 DELETE FROM stagr ;
 DELETE FROM parts_of_speech;
 DELETE FROM cross_references;

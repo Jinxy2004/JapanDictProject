@@ -14,7 +14,7 @@ def insertSense(lastRow,cursor):
     cursor.execute(sense_query,[lastRow])
     return cursor.lastrowid
 
-def insertAll(sense,lastRow,cursor):
+def insertAllSenses(sense,lastRow,cursor):
     insertStagk(sense,lastRow,cursor)
     insertStagr(sense,lastRow,cursor)
     insertPOS(sense,lastRow,cursor)
@@ -27,91 +27,115 @@ def insertAll(sense,lastRow,cursor):
     insertDialect(sense,lastRow,cursor)
     insertGloss(sense,lastRow,cursor)
 
+# All of these take in a dictionary and for each value in the key 
+# it inserts it into it's respective table
+
+# Sense inserts
+
 def insertStagk(sense, lastRow,cursor):
     query = ('''INSERT INTO stagk (kanjis_restricted_to,senses_id)
              VALUES(?,?)''')
-    for entry in sense:
-        stagk_values = entry.get("stagk",[])
-        for stagk in stagk_values:
-            cursor.execute(query,[stagk,lastRow])
+    stagk_values = sense.get("stagk",[])
+    for stagk in stagk_values:
+        cursor.execute(query,[stagk,lastRow])
 
 def insertStagr(sense,lastRow,cursor):
     query = ('''INSERT INTO stagr (readings_restricted_to,senses_id)
              VALUES(?,?)''')
-    for entry in sense:
-        stagr_values = entry.get("stagr",[])
-        for stagr in stagr_values:
-            cursor.execute(query,[stagr,lastRow])
+    stagr_values = sense.get("stagr",[])
+    for stagr in stagr_values:
+        cursor.execute(query,[stagr,lastRow])
 
 def insertPOS(sense,lastRow,cursor):
     query = ('''INSERT INTO parts_of_speech(pos_info,senses_id)
              VALUES(?,?)''')
-    for entry in sense:
-        pos_values = entry.get("pos",[])
-        for pos in pos_values:
-            cursor.execute(query,[pos,lastRow])
+    pos_values = sense.get("pos",[])
+    for pos in pos_values:
+        cursor.execute(query,[pos,lastRow])
 
 def insertCrossReferences(sense,lastRow,cursor):
     query = ('''INSERT INTO cross_references(cross_reference,senses_id)
              VALUES(?,?)''')
-    for entry in sense:
-        c_values = entry.get("xref")
-        for cross in c_values:
-            cursor.execute(query,[cross,lastRow])
+    c_values = sense.get("xref")
+    for cross in c_values:
+        cursor.execute(query,[cross,lastRow])
 
 def insertAntonyms(sense,lastRow,cursor):
     query = ('''INSERT INTO antonyms(ant_reference,senses_id)
              VALUES(?,?)''')
-    for entry in sense:
-        ant_values = entry.get("ant")
-        for ant in ant_values:
-            cursor.execute(query,[ant,lastRow])
+    ant_values = sense.get("ant")
+    for ant in ant_values:
+        cursor.execute(query,[ant,lastRow])
 
 def insertField(sense,lastRow,cursor):
     query = ('''INSERT INTO field(field_info,senses_id)
              VALUES(?,?)''')
-    for entry in sense:
-        field_values = entry.get("field")
-        for field in field_values:
-            cursor.execute(query,[field,lastRow])
+    field_values = sense.get("field")
+    for field in field_values:
+        cursor.execute(query,[field,lastRow])
 
 def insertMisc(sense,lastRow,cursor):
     query = ('''INSERT INTO misc(misc_info,senses_id)
              VALUES(?,?)''')
-    for entry in sense:
-        misc_values = entry.get("misc")
-        for misc in misc_values:
-            cursor.execute(query,[misc,lastRow])
+    misc_values = sense.get("misc")
+    for misc in misc_values:
+        cursor.execute(query,[misc,lastRow])
 
 def insertSenseInfo(sense,lastRow,cursor):
     query = ('''INSERT INTO sense_info(extra_info,senses_id)
              VALUES(?,?)''')
-    for entry in sense:
-        sense_info_values = entry.get("s_inf")
-        for sense_info in sense_info_values:
-            cursor.execute(query,[sense_info,lastRow])
+    sense_info_values = sense.get("s_inf")
+    for sense_info in sense_info_values:
+        cursor.execute(query,[sense_info,lastRow])
 
 def insertLoanwordSource(sense,lastRow,cursor):
     query = ('''INSERT INTO loanword_source(l_source,senses_id)
              VALUES(?,?)''')
-    for entry in sense:
-        loanword_source_values = entry.get("lsource")
-        for loanword_source in loanword_source_values:
-            cursor.execute(query,[loanword_source,lastRow])
+    loanword_source_values = sense.get("lsource")
+    for loanword_source in loanword_source_values:
+        cursor.execute(query,[loanword_source,lastRow])
 
 def insertDialect(sense, lastRow, cursor):
     query = ('''INSERT INTO dialect(dialect_info,senses_id)
              VALUES(?,?)''')
-    for entry in sense:
-        dialect_values = entry.get("dialect")
-        for dialect in dialect_values:
-            cursor.execute(query,[dialect,lastRow])
+    dialect_values = sense.get("dialect")
+    for dialect in dialect_values:
+        cursor.execute(query,[dialect,lastRow])
 
 def insertGloss(sense,lastRow,cursor):
     query = ('''INSERT INTO gloss(word_info,senses_id)
              VALUES(?,?)''')
-    for entry in sense:
-        gloss_values = entry.get("gloss")
-        for gloss in gloss_values:
-            cursor.execute(query,[gloss,lastRow])
+    gloss_values = sense.get("gloss")
+    for gloss in gloss_values:
+        cursor.execute(query,[gloss,lastRow])
+        
+# Kanji element inserts
 
+def insertAllKan(k_element,lastRow,cursor):
+    insertKanjiInfo(k_element,lastRow,cursor)
+    insertKanjiPri(k_element,lastRow,cursor)
+
+def insertKanjiElement(ent_seq,k_element,cursor):
+    query = ('''INSERT INTO kanji_elements(keb_element,entries_id)
+             VALUES(?,?)''')
+    insert_value = k_element.get("keb")
+    cursor.execute(query,[insert_value,ent_seq])
+    return cursor.lastrowid
+    
+def insertKanjiInfo(k_element,lastRow,cursor):
+    query = ('''INSERT INTO kanji_info(k_info,kanji_elements_id)
+             VALUES(?,?)''')
+    info_values = k_element.get("ke_inf")
+    for info in info_values:
+        cursor.execute(query,[info,lastRow])
+
+def insertKanjiPri(k_element,lastRow,cursor):
+    query = ('''INSERT INTO kanji_priority(k_priority_info,kanji_elements_id)
+             VALUES(?,?)''')
+    pri_values = k_element.get("ke_pri")
+    for pri in pri_values:
+        cursor.execute(query,[pri,lastRow])
+
+# Reading Elements
+
+def insert
