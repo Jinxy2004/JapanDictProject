@@ -1,4 +1,8 @@
 DELETE FROM sqlite_sequence;
+DELETE FROM readings_priority;
+DELETE FROM readings_info;
+DELETE FROM readings_restricted;
+DELETE FROM reading_elements;
 DELETE FROM kanji_info;
 DELETE FROM kanji_priority;
 DELETE FROM kanji_elements;

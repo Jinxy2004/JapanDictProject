@@ -138,4 +138,38 @@ def insertKanjiPri(k_element,lastRow,cursor):
 
 # Reading Elements
 
-def insert
+def insertAllReadingEle(r_element,lastRow,cursor):
+    insertRestrictedReadings(r_element,lastRow,cursor)
+    insertReadingsInfo(r_element,lastRow,cursor)
+    insertReadingPri(r_element,lastRow,cursor)
+    
+def insertReadingElement(r_element,lastRow,cursor):
+    query = ('''INSERT INTO reading_elements(word_reading,no_kanji,entries_id)
+             VALUES(?,?,?)''')
+    w_reading = r_element.get("reb")
+    no_k = r_element.get("no_kanji")
+    cursor.execute(query,[w_reading,no_k,lastRow])
+    return cursor.lastrowid
+
+def insertRestrictedReadings(r_element,lastRow,cursor):
+    query = ('''INSERT INTO readings_restricted(restricted_reading,reading_elements_id)
+             VALUES(?,?)''')
+    restricted_values = r_element.get("restricted_readings")
+    for restrict in restricted_values:
+        cursor.execute(query,[restrict,lastRow])
+        
+def insertReadingsInfo(r_element,lastRow,cursor):
+    query = ('''INSERT INTO readings_info(specific_info,reading_elements_id)
+             VALUES(?,?)''')
+    reading_values = r_element.get("r_inf")
+    for reading in reading_values:
+        cursor.execute(query,[reading,lastRow])
+        
+def insertReadingPri(r_element,lastRow,cursor):
+    query = ('''INSERT INTO readings_priority(re_priority_Info,reading_elements_id)
+             VALUES(?,?)''')
+    pri_values = r_element.get("r_pri")
+    for pri in pri_values:
+        cursor.execute(query,[pri,lastRow])
+    
+    
