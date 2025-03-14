@@ -14,8 +14,8 @@ root = tree.getroot()
 
 # Inserts data into kanji table
 def add_kanji(values):
-    query = ('''INSERT INTO kanji (k_literal,unicode_value,radical_num,grade_learned,stroke_count,app_frequency,rad_name,JLPT_level,on_reading,kun_reading,meaning,nanori)
-                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?)''')
+    query = ('''INSERT INTO kanji (k_literal,unicode_value,radical_num,grade_learned,stroke_count,app_frequency,rad_name,JLPT_level)
+                   VALUES(?,?,?,?,?,?,?,?)''')
     
     
     cursor.execute(query,values)
@@ -36,7 +36,30 @@ def add_kanji_variants(variant_values,last_row_id):
              VALUES(?,?,?)''')
     
     cursor.execute(query,insert_values)
-
+    
+def add_on_reading(on_values,last_row_id):
+    insert_values = (on_values,last_row_id)
+    query = ('''INSERT INTO kanji_on_readings (on_reading,kanji_id)
+             VALUES(?,?)''')
+    cursor.execute(query,insert_values)
+    
+def add_kun_reading(kun_values,last_row_id):
+    insert_values = (kun_values,last_row_id)
+    query = ('''INSERT INTO kanji_kun_readings (kun_reading,kanji_id)
+             VALUES(?,?)''')
+    cursor.execute(query,insert_values)
+    
+def insert_nanori(nanori,last_row_id):
+    insert_values = (nanori,last_row_id)
+    query = ('''INSERT INTO kanji_nanori (nanori_reading,kanji_id)
+             VALUES(?,?)''')
+    cursor.execute(query,insert_values)
+    
+def insert_kanji_reading(reading,last_row_id):
+    insert_values = (reading,last_row_id)
+    query = ('''INSERT INTO kanji_meanings (meaning,kanji_id)
+             VALUES(?,?)''')
+    cursor.execute(query,insert_values)
 
 
 
@@ -55,10 +78,10 @@ for k in root.findall("character"):
     JLPT_level = ""
     kanji_variants = []
     dict_values = []
-    on_reading = "" 
-    kun_reading = "" 
-    meaning = ""
-    nanori = ""
+    on_reading = []
+    kun_reading = []
+    meaning = []
+    nanori = []
     
     # Kanji literal
     k_literal = k.find("literal").text
@@ -104,29 +127,33 @@ for k in root.findall("character"):
         for val in k.find("reading_meaning"):
             for rm_val in val:
                 if(rm_val.get('r_type') == 'ja_on'):
-                    on_reading = on_reading.__add__(rm_val.text) + ', '
+                    on_reading.append(rm_val.text)
                 elif(rm_val.get('r_type') == 'ja_kun'):
-                    kun_reading = kun_reading.__add__(rm_val.text) + ', '
+                    kun_reading.append(rm_val.text)
                 elif (rm_val.get('m_lang') is None and rm_val.tag == 'meaning'):
-                    meaning = meaning.__add__(rm_val.text) + ', '
-            on_reading = on_reading.rstrip(', ')
-            kun_reading = kun_reading.rstrip(', ')
-            meaning = meaning.rstrip(', ')
+                    meaning.append(rm_val.text)
             if(val.tag == 'nanori'):
-                nanori = nanori.__add__(val.text) + ', '
-        nanori = nanori.rstrip(', ')
+                nanori.append(rm_val.text)
     except:
         continue
             
     # Adding Values
     
-    values = (k_literal,uni_value,rad_num,grade_learned,stroke_count,app_frequency,rad_name,JLPT_level,on_reading,kun_reading,meaning,nanori)
+    values = (k_literal,uni_value,rad_num,grade_learned,stroke_count,app_frequency,rad_name,JLPT_level)
     last_row_id = add_kanji(values)
     
     for value in dict_values:
         add_dict_ref(value,last_row_id)
     for value in kanji_variants:
         add_kanji_variants(value,last_row_id)
+    for value in on_reading:
+        add_on_reading(value,last_row_id)
+    for value in kun_reading:
+        add_kun_reading(value,last_row_id)
+    for value in nanori:
+        insert_nanori(value,last_row_id)
+    for value in meaning:
+        insert_kanji_reading(value,last_row_id)
     
 
     # Testing

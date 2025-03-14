@@ -127,6 +127,9 @@ for ent in root.findall('entry'):
 
         sense_elements.append(sense_entry)
     
+    # Inserts for dictionary
+    # Inserts an etry, then the related tables for each entry and their related tables
+    
     entLastRow = ins.insertEntry(ent_seq,cursor)
     for j in range(len(sense_elements)):
         lastRow = ins.insertSense(entLastRow,cursor)
