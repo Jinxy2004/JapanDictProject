@@ -120,7 +120,7 @@ for ent in root.findall('entry'):
             "field": field,
             "misc": misc,
             "s_inf": sense_info,
-            "lsource": loanword_source,
+            "lsource": loanword_source,     
             "dialect": dialects,
             "gloss": gloss
         }
