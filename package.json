@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "sqlite3": "^5.1.7",
-    "wanakana": "^5.3.1"
-  }
-}
