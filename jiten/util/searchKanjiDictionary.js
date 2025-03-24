@@ -1,7 +1,3 @@
-// Import the sqlite3 package
-import * as SQLite from 'expo-sqlite';
-import * as FileSystem from 'expo-file-system'
-import { Asset } from 'expo-asset';
 //const readline = require('readline');
 const wanakana = require('wanakana');
 
