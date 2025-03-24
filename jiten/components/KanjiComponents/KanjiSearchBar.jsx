@@ -1,8 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text} from 'react-native';
-import { searchByMeaning, searchByReading, returnKanjiDetailsByID, checkDB } from '../util/searchKanjiDictionary.js';
+import { searchByMeaning, searchByReading, returnKanjiDetailsByID, searchByKanji } from '../../util/searchKanjiDictionary.js';
 import { ScrollView, GestureHandlerRootView } from "react-native-gesture-handler";
-import KanjiCard from "./KanjiCard.jsx";
 import { useSQLiteContext } from "expo-sqlite";
 import KanjiSearchDisplayCard from "./KanjiSearchDisplayCard.jsx";
 const debounce = require('debounce');
@@ -17,24 +16,24 @@ const KanjiSearchBar = () => {
   
     const debouncedSearch = useCallback(
     debounce(async (text) => {
-        // if(searchText.trim() === '') {
-        //     Alert.alert('Error', 'Enter a search term.');
-        //     return;
-        // } 
         try {
           console.log("Current input is: ",text);
-          console.log("The DB schema is: ",checkDB(db));
-          // Checks to see if the input isn't Japanese, if it isn't it searches via the meanings of the kanji
-          if(!wanakana.isJapanese(text)) {
-            const kanjiIds = await searchByMeaning(text,db)
-            results = await returnKanjiDetailsByID(kanjiIds,db);
+          console.log(wanakana.isKanji(text));
+          // Checks to see if the input isn't Japanese
+          if(wanakana.isKanji(text)) {
+            const kanjiIDs = await searchByKanji(text, db)
+            results = await returnKanjiDetailsByID(kanjiIDs,db)
+          } else if(!wanakana.isJapanese(text)) {
+            const kanjiIDs1 = await searchByReading(text,db);
+            const kanjiIds2 = await searchByMeaning(text,db);
+            results = await returnKanjiDetailsByID(kanjiIDs1.concat(kanjiIds2),db);
           // Checks to see if the input is Romaji or Japanese, in which cases convert it to Hiragana and searches
           } else if (wanakana.isRomaji(text) || wanakana.isJapanese(text)) {
             wanakana.toHiragana(text);
-            const kanjiIds = await searchByReading(text,db)
-            results = await returnKanjiDetailsByID(kanjiIds,db);
-          }
-
+            const kanjiIds1 = await searchByReading(text,db);
+            const kanjiIds2 = await searchByMeaning(text,db)
+            results = await returnKanjiDetailsByID(kanjiIds1.concat(kanjiIds2),db);
+          } 
           setSearchResults(Array.isArray(results) ? results : []);
 
         } catch(error) {

@@ -5,50 +5,8 @@ import { Asset } from 'expo-asset';
 //const readline = require('readline');
 const wanakana = require('wanakana');
 
-// async function intitializeDatabase() {
-//   console.log("Opening db...")
-//   const dbName = 'entireDict.db';
-//   const dbPath = `${FileSystem.documentDirectory}SQLite/${dbName}`;
-//   const assetDbPath = Asset.fromModule(require('../assets/database/entireDict.db')).uri;
-
-//   const dbExists = await FileSystem.getInfoAsync(dbPath);
-
-
-
-//   if (!dbExists.exists) {
-//     console.log("Copying database from assets");
-
-//     await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}SQLite`, { intermediates: true });
-
-//     try {
-//       // Download the database file from the asset URL to the local path
-//       console.log("The asset DB path is: ", assetDbPath);
-//       console.log("The local DB path is: ", dbPath);
-//       const { uri } = await FileSystem.downloadAsync(assetDbPath, dbPath);
-//       console.log("Database copied successfully to:", uri);
-//     } catch (error) {
-//       console.error("Error copying database:", error);
-//       return;
-//     }
-//   } else {
-//     try {
-//       await FileSystem.deleteAsync(dbPath);
-//       console.log("DB deleted");
-//     } catch (err) {
-//       console.error("Error deleting existing database:", err);
-//     }
-//   }
-//   try {
-//     db = await SQLite.openDatabaseAsync(dbPath);
-
-//     console.log("Database opened successfully");
-//   } catch (error) {
-//     console.error("Error opening database:", error);
-//   }
-// }
-
 // intitializeDatabase();
-
+// Just a test function
 export function checkDB(db) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -65,13 +23,34 @@ export function checkDB(db) {
 
   });
 }
+// Allows user to search via kanji
+export function searchByKanji(userInput, db) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const query = `
+      SELECT kanji.id 
+      FROM kanji
+      WHERE
+        kanji.k_literal LIKE ?
+      GROUP BY kanji.id
+      `;
+
+      const params = [
+        userInput
+      ];
+
+      const rows = await db.getAllAsync(query, params);
+      const kanjiIds = rows.map(row => row.id); // Extracts all the ID's from the queries
+      resolve(kanjiIds);
+    } catch (err) {
+      console.error('Error message in searchByKanji: ', err)
+      reject(err)
+    }
+  });
+};
 
 export function searchByMeaning(userInput, db) {
   return new Promise(async (resolve, reject) => {
-    if (!db) {
-      console.error("database not made");
-      return;
-    }
     try {
       const query = `
         SELECT kanji.id
@@ -86,7 +65,6 @@ export function searchByMeaning(userInput, db) {
           kanji_meanings.meaning LIKE ? 
         GROUP BY kanji.id
         ORDER BY kanji.id
-        LIMIT 10; 
       `;
 
       const params = [
@@ -97,7 +75,7 @@ export function searchByMeaning(userInput, db) {
         `%(${userInput})%`, // Word with trailing parenthesis
         `%(${userInput} %`, // Word with leading parenthesis
       ];
-      console.log("Querying in meaning");
+      //console.log("Querying in meaning");
       const rows = await db.getAllAsync(query, params);
       const kanjiIds = rows.map(row => row.id); // Extracts all the ID's from the queries
       resolve(kanjiIds);
@@ -130,9 +108,8 @@ export function searchByReading(userInput, db) {
           )
         GROUP BY kanji.id
         ORDER BY kanji.id
-        LIMIT 10;
       `;
-      console.log("Querying in reading");
+      //console.log("Querying in reading");
       const params = [
         `${wanakana.toKatakana(userInput)}%`,
         wanakana.toKatakana(userInput),
@@ -187,7 +164,7 @@ export function returnKanjiDetailsByID(kanjiIDs, db) {
         GROUP BY kanji.id
       `;
 
-      console.log("Querying in return details ");
+      //console.log("Querying in return details ");
       // The coalesce in the query insures an empty array will be returned instead of null
       // Queries everything, makes sure that something was found and also parses the results into a JS Object and then returns it
       const rows = await db.getAllAsync(query, []);

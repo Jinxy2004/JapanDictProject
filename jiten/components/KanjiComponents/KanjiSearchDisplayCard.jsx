@@ -1,7 +1,7 @@
 import React from "react";
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { useTheme } from "./ThemeContext";
-import { ThemedText } from "./ThemedText";
+import { useTheme } from "../ThemeContext";
+import { ThemedText } from "../ThemedText";
 import { useRouter } from 'expo-router';
 
 // This is the card displays basic information about the searched up kanji

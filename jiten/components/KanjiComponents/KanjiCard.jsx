@@ -1,7 +1,7 @@
 import React from "react";
 import { View, StyleSheet } from 'react-native';
-import { useTheme } from "./ThemeContext";
-import { ThemedText } from "./ThemedText";
+import { useTheme } from "../ThemeContext";
+import { ThemedText } from "../ThemedText";
 import { ScrollView, GestureHandlerRootView } from "react-native-gesture-handler";
 
 const KanjiCard = ({

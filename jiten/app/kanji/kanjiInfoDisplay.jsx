@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import KanjiCard from '../../components/KanjiCard';
+import KanjiCard from '../../components/KanjiComponents/KanjiCard';
 import { ThemeProvider } from '../../components/ThemeContext';
 
 export default function KanjiDetailScreen() {

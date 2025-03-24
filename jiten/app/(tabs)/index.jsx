@@ -1,5 +1,5 @@
 import { View, StyleSheet, useColorScheme } from 'react-native';
-import KanjiSearchBar from '../../components/KanjiSearchBar';
+import KanjiSearchBar from '../../components/KanjiComponents/KanjiSearchBar';
 import { SQLiteProvider } from 'expo-sqlite';
 
 export default function Tab() {
