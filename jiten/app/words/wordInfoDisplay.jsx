@@ -16,7 +16,6 @@ export default function WordInfoDisplayScreen() {
     <ThemeProvider>
       <View style={styles.container}>
         <WordCard
-          key={index}
           kanji_elements={kanji_elements}
           reading_elements={reading_elements}
           senses={senses}

@@ -34,8 +34,7 @@ export function searchByGloss(userInput, db) {
         gloss.word_info LIKE ? OR 
         gloss.word_info LIKE ? 
       GROUP BY ent_seq
-      ORDER BY ent_seq
-      LIMIT 10; 
+      LIMIT 50; 
     `;
 
       const params = [
@@ -72,8 +71,7 @@ export function searchByReadingElement(userInput, db) {
         reading_elements.word_reading LIKE ? OR
         reading_elements.word_reading LIKE ? 
       GROUP BY ent_seq
-      ORDER BY ent_seq
-      LIMIT 10; 
+      LIMIT 50; 
     `;
 
       const params = [
@@ -110,8 +108,7 @@ export function serachByKanjiElement(userInput, db) {
         kanji_elements.keb_element LIKE ? OR
         kanji_elements.keb_element LIKE ? 
       GROUP BY ent_seq
-      ORDER BY ent_seq
-      LIMIT 10; 
+      LIMIT 50; 
     `;
 
       const params = [
