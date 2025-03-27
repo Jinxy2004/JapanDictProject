@@ -13,8 +13,6 @@ const WordCard = ({
    const{theme, toggleTheme} = useTheme();
     // Logging for test purposes
     console.log('Kanji elements:', JSON.stringify(kanji_elements, null, 2));
-    console.log('Reading elements:', JSON.stringify(reading_elements, null, 2));
-    console.log('Senses:', JSON.stringify(senses, null, 2));
    
    const styles = StyleSheet.create({
     container: {
@@ -80,7 +78,27 @@ const WordCard = ({
   }
 
   function loanwordExists(ele) {
-    return ele.loanword_source > 0;
+    return ele.loanword_source.length > 0;
+  }
+
+  function restrReadingsExist(ele) {
+    return ele.restricted_readings.length > 0;
+  }
+
+  function readingPriExists(ele) {
+    return ele.reading_priorities.length > 0;
+  }
+
+  function readingInfoExists(ele) {
+    return ele.reading_info.length > 0;
+  }
+
+  function kanjiInfoExists(ele) {
+    return ele.kanji_info.length > 0;
+  }
+
+  function kanjiPriExists(ele) {
+    return ele.kanji_priority.length > 0;
   }
   
 
@@ -91,8 +109,46 @@ const WordCard = ({
     <GestureHandlerRootView style={styles.container}>
       <View style={styles.card}>
         <ScrollView style={styles.scrollView}>
-          <ThemedText>KEB: {kanji_elements.map(ele => ele.keb_element)}</ThemedText>
-          <ThemedText>Readings: {reading_elements.map(ele => ele.word_reading)}</ThemedText>
+           {/* Handles all kanji information */}
+           <View>
+            <ThemedText>Kanji Elements: </ThemedText>
+            {kanji_elements.map(ele => (
+              <View key={ele.id}>
+                 {/* Handles keb elements */}
+                 {<ThemedText>• {ele.keb_element}</ThemedText>}
+                 {/* Handles kanji info */}
+                 {kanjiInfoExists(ele) && (
+                  <ThemedText style={styles.extraInfoText}>Kanji info: {ele.kanji_info.join(", ")}</ThemedText>
+                 )}
+                 {/* Handles kanji priority */}
+                 {kanjiInfoExists(ele) && (
+                  <ThemedText style={styles.extraInfoText}>Kanji priority: {ele.kanji_priority.join(", ")}</ThemedText>
+                 )}
+              </View>
+            ))}
+           </View>
+          {/* Handles all reading information */}
+          <View>
+          {<ThemedText>Reading elements: </ThemedText>}
+            {reading_elements.map(ele => (
+              <View key={ele.id}>
+                {/* Handles each words readings */}
+                {<ThemedText>• {ele.word_reading}</ThemedText>}
+                {/* Handles the readings restricted to a specific kanji */}
+                {restrReadingsExist(ele) && (
+                <ThemedText style={styles.extraInfoText}>Reading restricted to: {ele.restricted_readings.join(", ")}</ThemedText>
+                )}
+                {/* Handles the the priority of each reading */}
+                {readingPriExists(ele) && (
+                  <ThemedText style={styles.extraInfoText}>Reading priority: {ele.reading_priorities.join(", ")}</ThemedText>
+                )}
+                {/* Handles the info for each reading */}
+                {readingInfoExists(ele) && (
+                  <ThemedText style={styles.extraInfoText}>Reading info: {ele.reading_info.join(", ")}</ThemedText>
+                )}
+              </View>
+            ))}
+          </View>
           <ThemedText>Senses: </ThemedText> 
           <View>
             {/* Handles all sense information */}
