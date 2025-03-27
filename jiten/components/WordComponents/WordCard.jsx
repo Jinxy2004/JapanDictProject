@@ -11,8 +11,6 @@ const WordCard = ({
   senses = []
 }) => {
    const{theme, toggleTheme} = useTheme();
-    // Logging for test purposes
-    console.log('Kanji elements:', JSON.stringify(kanji_elements, null, 2));
    
    const styles = StyleSheet.create({
     container: {
@@ -121,7 +119,7 @@ const WordCard = ({
                   <ThemedText style={styles.extraInfoText}>Kanji info: {ele.kanji_info.join(", ")}</ThemedText>
                  )}
                  {/* Handles kanji priority */}
-                 {kanjiInfoExists(ele) && (
+                 {kanjiPriExists(ele) && (
                   <ThemedText style={styles.extraInfoText}>Kanji priority: {ele.kanji_priority.join(", ")}</ThemedText>
                  )}
               </View>

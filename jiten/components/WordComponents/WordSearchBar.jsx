@@ -13,19 +13,23 @@ const WordSearchBar = () => {
   // value is a function that lets you update the current value and re-render
     const[searchText, setSearchText] = useState('') // This stores the input values
     const[searchResults, setSearchResults] = useState([]) // This stores the resulting array of searches
-  
+
     const debouncedSearch = useCallback(
     debounce(async (text) => {
+      let results = "";
         try {
           console.log("Current input is: ",text)
           if(!wanakana.isJapanese(text)) {
+            console.log("Searching in first")
             const ent_ids = await searchByGloss(text,db);
             results = await fetchEntryDetails(ent_ids,db);
           } else if (wanakana.isKana(text)) {
+            console.log("Searching in second")
             const ent_ids = await searchByReadingElement(text,db);
             results = await fetchEntryDetails(ent_ids,db);
-          } else if (wanakana.isKanji(text.replace(/[\u3041-\u3096]/g, ""))) {
-            const ent_ids = await serachByKanjiElement(text.replace(/[\u3041-\u3096]/g, ""),db)
+          } else if (wanakana.isJapanese(text) && !wanakana.isKana(text)) {
+            console.log("Searching in third")
+            const ent_ids = await serachByKanjiElement(text,db)
             results = await fetchEntryDetails(ent_ids,db);
           }
 
@@ -35,7 +39,7 @@ const WordSearchBar = () => {
           Alert.alert('error', 'Failed to search, try again.');
           setSearchResults([]);
         };
-    }, 300), // 300MS debounce, so function recreates every 300ms?
+    }, 500), // 300MS debounce, so function recreates every 300ms?
   );
 
   
