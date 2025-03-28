@@ -157,6 +157,7 @@ export function returnKanjiDetailsByID(kanjiIDs, db) {
         LEFT JOIN kanji_meanings ON kanji.id = kanji_meanings.kanji_id
         LEFT JOIN dict_references ON kanji.id = dict_references.kanji_id
         WHERE kanji.id IN (${idList})
+        LIMIT 50;
         GROUP BY kanji.id
       `;
 
