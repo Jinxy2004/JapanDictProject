@@ -27,18 +27,18 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="wordSearch"
+          name="index"
           options={{
-            title: "Word Search",
+            title: "Kanji Search",
             tabBarIcon: ({ color }) => (
               <FontAwesome size={28} name="cog" color={color} />
             ),
           }}
         />
         <Tabs.Screen
-          name="kanjiSearch"
+          name="wordSearch"
           options={{
-            title: "Kanji Search",
+            title: "Word Search",
             tabBarIcon: ({ color }) => (
               <FontAwesome size={28} name="home" color={color} />
             ),
