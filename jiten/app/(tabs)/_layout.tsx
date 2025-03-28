@@ -44,6 +44,15 @@ export default function TabLayout() {
             ),
           }}
         />
+        <Tabs.Screen
+          name="tesseractScreen"
+          options={{
+            title: "OCR Model",
+            tabBarIcon: ({ color }) => (
+              <FontAwesome size={28} name="home" color={color} />
+            ),
+          }}
+        />
       </Tabs>
     </View>
   );

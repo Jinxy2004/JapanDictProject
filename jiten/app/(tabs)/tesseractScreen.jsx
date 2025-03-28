@@ -1,0 +1,22 @@
+import { View, useColorScheme, StyleSheet } from 'react-native';
+import { SQLiteProvider } from 'expo-sqlite';
+import { ThemedText } from '@/components/ThemedText';
+
+
+export default function Tab() {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
+  return (
+    <View style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
+      <ThemedText>Hello World</ThemedText>
+    </View>
+  );
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
