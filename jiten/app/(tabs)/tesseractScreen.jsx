@@ -1,6 +1,9 @@
 import { View, useColorScheme, StyleSheet, ActivityIndicator, Image } from 'react-native';
 import { useState, useEffect } from 'react';
-import TextRecognition from '@react-native-ml-kit/text-recognition';
+import TextRecognition, {
+  TextRecognitionScript,
+} from '@react-native-ml-kit/text-recognition';
+
 import { ThemedText } from '@/components/ThemedText';
 
 export default function Tab() {
@@ -17,12 +20,16 @@ export default function Tab() {
         
         // For a local image in your assets
         const imageSource = require('../../assets/images/textToReco.png');
-        const imageUri = Image.resolveAssetSource(imageSource).uri;
+        const imageURL = Image.resolveAssetSource(imageSource).uri;
         
         // For an image from device storage:
         // const imageUri = 'file:///path/to/your/image.jpg';
         
-        const result = await TextRecognition.recognize(imageUri);
+        const result = await TextRecognition.recognize(
+          imageURL,
+          // Script for Japanese, you can also use Chinese, Korean, Divanagari and of course Latin.
+          TextRecognitionScript.JAPANESE
+        );
         setRecognizedText(result.text);
       } catch (err) {
         console.error('Recognition error:', err);
