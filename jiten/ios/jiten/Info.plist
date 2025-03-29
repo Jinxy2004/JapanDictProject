@@ -75,5 +75,9 @@
     <string>Automatic</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>We need access to your photo library to select images for text recognition.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>We need access to your camera to capture images for text recognition.</string>
   </dict>
 </plist>

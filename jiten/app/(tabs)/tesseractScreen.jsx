@@ -1,10 +1,11 @@
-import { View, useColorScheme, StyleSheet, ActivityIndicator, Image } from 'react-native';
+import { View, useColorScheme, StyleSheet, ActivityIndicator, Image, Button} from 'react-native';
 import { useState, useEffect } from 'react';
 import TextRecognition, {
   TextRecognitionScript,
 } from '@react-native-ml-kit/text-recognition';
-
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import { ThemedText } from '@/components/ThemedText';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Tab() {
   const colorScheme = useColorScheme();
@@ -12,42 +13,59 @@ export default function Tab() {
   const [recognizedText, setRecognizedText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
 
-  useEffect(() => {
-    const recognizeText = async () => {
-      try {
-        setIsLoading(true);
-        
-        // For a local image in your assets
-        const imageSource = require('../../assets/images/textToReco.png');
-        const imageURL = Image.resolveAssetSource(imageSource).uri;
-        
-        // For an image from device storage:
-        // const imageUri = 'file:///path/to/your/image.jpg';
-        
-        const result = await TextRecognition.recognize(
-          imageURL,
-          // Script for Japanese, you can also use Chinese, Korean, Divanagari and of course Latin.
-          TextRecognitionScript.JAPANESE
-        );
-        setRecognizedText(result.text);
-      } catch (err) {
-        console.error('Recognition error:', err);
-        setError(err);
-      } finally {
-        setIsLoading(false);
-      }
+  const openImagePicker = () => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: false,
+      maxHeight: 2000,
+      maxWidth: 2000,
     };
 
-    recognizeText();
-  }, []);
+    launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('Image picker error: ', response.error);
+        setError(response.error);
+      } else {
+        let imageUri = response.uri || response.assets?.[0]?.uri;
+        setSelectedImage(imageUri);
+      }
+    });
+  };
+
+  const recognizeTextFromImage = async (imageUri) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const result = await TextRecognition.recognize(
+        imageUri,
+        TextRecognitionScript.JAPANESE
+      );
+      setRecognizedText(result.text);
+    } catch (err) {
+      console.error('Recognition error:', err);
+      setError(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedImage) {
+      recognizeTextFromImage(selectedImage);
+    }
+  }, [selectedImage]);
 
   if (isLoading) {
     return (
-      <View style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
         <ActivityIndicator size="large" />
         <ThemedText>Processing Japanese text...</ThemedText>
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -56,12 +74,21 @@ export default function Tab() {
       <View style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
         <ThemedText>Error:</ThemedText>
         <ThemedText>{error.message}</ThemedText>
+        <Button title="Try Again" onPress={() => setError(null)} />
       </View>
     );
   }
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
+      <Button title="Open Image" onPress={openImagePicker}/>
+      {selectedImage && (
+        <Image 
+          source={{ uri: selectedImage }} 
+          style={styles.imagePreview} 
+          resizeMode="contain"
+        />
+      )}
       <ThemedText style={styles.title}>Recognized Japanese Text:</ThemedText>
       <ThemedText style={styles.textOutput}>
         {recognizedText || 'No text recognized'}
@@ -88,5 +115,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     borderRadius: 8,
     width: '90%',
+  },
+  imagePreview: {
+    width: 300,
+    height: 300,
+    marginBottom: 20,
   },
 });

@@ -1378,6 +1378,27 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-image-picker (8.2.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-pager-view (6.5.1):
     - DoubleConversion
     - glog
@@ -1896,6 +1917,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
+  - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -2059,6 +2081,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   React-microtasksnativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
+  react-native-image-picker:
+    :path: "../node_modules/react-native-image-picker"
   react-native-pager-view:
     :path: "../node_modules/react-native-pager-view"
   react-native-safe-area-context:
@@ -2202,6 +2226,7 @@ SPEC CHECKSUMS:
   React-logger: 5cad0c76d056809523289e589309012215a393b5
   React-Mapbuffer: a381120aea722d2244d4e4b663a10d4c3b2d4e51
   React-microtasksnativemodule: 5eb5925893ffd482c5244f323f7fd98a4c07528d
+  react-native-image-picker: 86f8954a0b8c0f85d56fa1d85ae87936ae74e615
   react-native-pager-view: ce04070e45044fb36fd239b3cb0c34af9cec66db
   react-native-safe-area-context: 8b8404e70b0cbf2a56428a17017c14c1dcc16448
   react-native-webview: 286356dfd10655a87a61f8192037904fec3c4921
