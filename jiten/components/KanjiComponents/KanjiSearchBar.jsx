@@ -18,7 +18,6 @@ const KanjiSearchBar = () => {
     debounce(async (text) => {
         try {
           console.log("Current input is: ",text);
-          console.log(wanakana.isKanji(text));
           // Checks to see if the input isn't Japanese
           if(wanakana.isKanji(text)) {
             const kanjiIDs = await searchByKanji(text, db)
