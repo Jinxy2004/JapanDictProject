@@ -3,9 +3,10 @@ import { useState, useEffect } from 'react';
 import TextRecognition, {
   TextRecognitionScript,
 } from '@react-native-ml-kit/text-recognition';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
 import { ThemedText } from '@/components/ThemedText';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 export default function Tab() {
   const colorScheme = useColorScheme();
@@ -21,8 +22,10 @@ export default function Tab() {
       includeBase64: false,
       maxHeight: 2000,
       maxWidth: 2000,
+      presentationStyle: 'fullScreen',
     };
 
+    
     launchImageLibrary(options, (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
