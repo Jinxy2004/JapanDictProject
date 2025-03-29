@@ -35,14 +35,7 @@
         }
       ],
       "expo-sqlite",
-      "expo-font",
-      [
-        "react-native-image-picker",
-        {
-          "photosPermission": "We need access to your photo library to select images for text recognition.",
-          "cameraPermission": "We need access to your camera to capture images for text recognition."
-        }
-      ]
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
