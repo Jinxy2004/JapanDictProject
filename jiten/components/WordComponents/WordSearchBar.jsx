@@ -39,7 +39,7 @@ const WordSearchBar = () => {
           Alert.alert('error', 'Failed to search, try again.');
           setSearchResults([]);
         };
-    }, 500), // 300MS debounce, so function recreates every 300ms?
+    }, 500), // 500 debounce, so function recreates every?
   );
 
   

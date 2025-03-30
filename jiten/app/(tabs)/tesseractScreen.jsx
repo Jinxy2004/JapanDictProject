@@ -6,7 +6,7 @@ import TextRecognition, {
 import {launchImageLibrary} from 'react-native-image-picker';
 import { ThemedText } from '@/components/ThemedText';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import ImagePicker from 'react-native-image-crop-picker';
 
 export default function Tab() {
   const colorScheme = useColorScheme();
@@ -17,25 +17,12 @@ export default function Tab() {
   const [selectedImage, setSelectedImage] = useState(null);
 
   const openImagePicker = () => {
-    const options = {
-      mediaType: 'photo',
-      includeBase64: false,
-      maxHeight: 2000,
-      maxWidth: 2000,
-      presentationStyle: 'fullScreen',
-    };
-
-    
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('Image picker error: ', response.error);
-        setError(response.error);
-      } else {
-        let imageUri = response.uri || response.assets?.[0]?.uri;
-        setSelectedImage(imageUri);
-      }
+    ImagePicker.openPicker({
+      width: 300,
+      height: 400,
+      cropping: true
+    }).then(image => {
+      setSelectedImage(image.sourceURL);
     });
   };
 
@@ -48,6 +35,7 @@ export default function Tab() {
         imageUri,
         TextRecognitionScript.JAPANESE
       );
+      console.log('Recognition result:', result);
       setRecognizedText(result.text);
     } catch (err) {
       console.error('Recognition error:', err);
@@ -83,7 +71,7 @@ export default function Tab() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
       <Button title="Open Image" onPress={openImagePicker}/>
       {selectedImage && (
         <Image 
@@ -96,7 +84,7 @@ export default function Tab() {
       <ThemedText style={styles.textOutput}>
         {recognizedText || 'No text recognized'}
       </ThemedText>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -115,6 +103,7 @@ const styles = StyleSheet.create({
   textOutput: {
     marginTop: 10,
     padding: 15,
+    color: '#333',
     backgroundColor: '#f5f5f5',
     borderRadius: 8,
     width: '90%',
@@ -125,3 +114,4 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 });
+
