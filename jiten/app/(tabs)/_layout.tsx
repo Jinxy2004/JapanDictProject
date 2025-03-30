@@ -1,3 +1,4 @@
+import { ThemedText } from "@/components/ThemedText";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs } from "expo-router";
 import { useColorScheme } from "react-native";
@@ -17,6 +18,10 @@ export default function TabLayout() {
             backgroundColor: isDark ? "#000000" : "#ffffff",
             borderTopColor: isDark ? "#333333" : "#cccccc",
           },
+          tabBarIconStyle: {
+            width: 50,
+            height: 35,
+          },
           headerStyle: {
             backgroundColor: isDark ? "#000000" : "#ffffff",
           },
@@ -31,7 +36,16 @@ export default function TabLayout() {
           options={{
             title: "Kanji Search",
             tabBarIcon: ({ color }) => (
-              <FontAwesome size={28} name="cog" color={color} />
+              <View
+                style={{
+                  width: 50,
+                  height: 50,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <ThemedText style={{ color, fontSize: 22 }}>漢字</ThemedText>
+              </View>
             ),
           }}
         />
@@ -40,7 +54,16 @@ export default function TabLayout() {
           options={{
             title: "Word Search",
             tabBarIcon: ({ color }) => (
-              <FontAwesome size={28} name="home" color={color} />
+              <View
+                style={{
+                  width: 50,
+                  height: 50,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <ThemedText style={{ color, fontSize: 22 }}>言葉</ThemedText>
+              </View>
             ),
           }}
         />
@@ -49,7 +72,7 @@ export default function TabLayout() {
           options={{
             title: "OCR Model",
             tabBarIcon: ({ color }) => (
-              <FontAwesome size={28} name="home" color={color} />
+              <FontAwesome size={24} name="camera" color={color} />
             ),
           }}
         />
