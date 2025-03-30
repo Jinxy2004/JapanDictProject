@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import TextRecognition, {
   TextRecognitionScript,
 } from '@react-native-ml-kit/text-recognition';
-import {launchImageLibrary} from 'react-native-image-picker';
 import { ThemedText } from '@/components/ThemedText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ImagePicker from 'react-native-image-crop-picker';

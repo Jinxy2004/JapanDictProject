@@ -8,11 +8,11 @@ const KanjiCard = ({
   // takes in values and nulls out for fallback
   kanji,
   radical_num,
-  grade_learned,
+  grade_learned, // Can be null
   stroke_count,
-  app_frequency,
-  rad_name,
-  JLPT_level,
+  app_frequency, // Can be null
+  rad_name, // Can be null
+  JLPT_level, // Can be null
   kanji_meanings = [],
   ony_readings = [],
   kun_readings = [],
@@ -48,8 +48,20 @@ const KanjiCard = ({
     ));
   };
 
+  // Helper functions
+  function radNameExists() {
+    return rad_name !== null && rad_name !== undefined && rad_name !== '';
+  }
 
-
+  function JLPTLevelExists() {
+    return JLPT_level !== null && JLPT_level !== undefined && JLPT_level !== '';
+  }
+  function appFrequencyExists() {
+    return app_frequency !== null && app_frequency !== undefined && app_frequency !== '';
+  }
+  function gradeLearnedExists() {
+    return grade_learned !== null && grade_learned !== undefined && grade_learned !== '';
+  }
   return (
     // Displays a singular kanji information 
     <GestureHandlerRootView style={styles.container}>
@@ -57,11 +69,20 @@ const KanjiCard = ({
         <ScrollView style={styles.scrollView}>
           <ThemedText style={styles.kanjiHeader}>{kanji}</ThemedText>
           <ThemedText>Radical number: {radical_num}</ThemedText>
-          <ThemedText>Grade learned: {grade_learned}</ThemedText>
           <ThemedText>Stroke count: {stroke_count}</ThemedText>
-          <ThemedText>Appearance frequency: {app_frequency}</ThemedText>
-          <ThemedText>Radical name: {rad_name}</ThemedText>
-          <ThemedText>JLPT level: {JLPT_level}</ThemedText>
+          {/* Dynamic rendering to only show if the values exist */}
+          {radNameExists() && (
+            <ThemedText>Radical name: {rad_name}</ThemedText>
+          )}
+          {JLPTLevelExists() && (
+            <ThemedText>JLPT level: {JLPT_level}</ThemedText>
+          )}
+          {appFrequencyExists() && (
+            <ThemedText>Appearance frequency: {app_frequency}</ThemedText>
+          )}
+          {gradeLearnedExists() && (
+            <ThemedText>Grade learned: {grade_learned}</ThemedText>
+          )}
           <ThemedText>Meanings: {kanji_meanings.join(', ')}</ThemedText>
           <ThemedText>Ony readings: {ony_readings.join(', ')}</ThemedText>
           <ThemedText>Kun readings: {kun_readings.join(', ')}</ThemedText>

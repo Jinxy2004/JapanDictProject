@@ -103,7 +103,7 @@ const WordCard = ({
 
 
   return (
-    // Displays a singular word information 
+    // Displays a singular word information via dynamic rendering
     <GestureHandlerRootView style={styles.container}>
       <View style={styles.card}>
         <ScrollView style={styles.scrollView}>

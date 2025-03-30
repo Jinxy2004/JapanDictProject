@@ -45,7 +45,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="tesseractScreen"
+          name="ocrScreen"
           options={{
             title: "OCR Model",
             tabBarIcon: ({ color }) => (
