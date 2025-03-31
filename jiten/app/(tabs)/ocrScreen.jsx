@@ -6,6 +6,7 @@ import TextRecognition, {
 import { ThemedText } from '@/components/ThemedText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ImagePicker from 'react-native-image-crop-picker';
+import { GestureHandlerRootView, ScrollView } from 'react-native-gesture-handler';
 const wanakana = require('wanakana');
 
 
@@ -22,8 +23,7 @@ export default function Tab() {
       width: 300,
       height: 300,
       multiple: false,
-      cropping: true,
-      freeStyleCropEnabled: true,
+      cropping: false,
       mediaType: 'photo',
       compressImageQuality: 0.8,
     }).then(image => {
@@ -77,20 +77,22 @@ export default function Tab() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
-      <Button title="Open Image" onPress={openImagePicker}/>
-      {selectedImage && (
-        <Image 
-          source={{ uri: selectedImage }} 
-          style={styles.imagePreview} 
-          resizeMode="contain"
-        />
-      )}
-      <ThemedText style={styles.title}>Recognized Japanese Text:</ThemedText>
-      <ThemedText style={styles.textOutput}>
-        {recognizedText || 'No text recognized'}
-      </ThemedText>
-    </SafeAreaView>
+    <GestureHandlerRootView style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
+      <ScrollView>
+        <Button title="Open Image" onPress={openImagePicker}/>
+        {selectedImage && (
+          <Image 
+            source={{ uri: selectedImage }} 
+            style={styles.imagePreview} 
+            resizeMode="contain"
+          />
+        )}
+        <ThemedText style={styles.title}>Recognized Japanese Text:</ThemedText>
+        <ThemedText style={styles.textOutput}>
+          {recognizedText || 'No text recognized'}
+        </ThemedText>
+      </ScrollView>
+    </GestureHandlerRootView>
   );
 }
 
