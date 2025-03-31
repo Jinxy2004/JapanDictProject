@@ -19,9 +19,13 @@ export default function Tab() {
 
   const openImagePicker = () => {
     ImagePicker.openPicker({
-      width: 2000,
-      height: 2000,
-      cropping: false
+      width: 300,
+      height: 300,
+      multiple: false,
+      cropping: true,
+      freeStyleCropEnabled: true,
+      mediaType: 'photo',
+      compressImageQuality: 0.8,
     }).then(image => {
       setSelectedImage(image.sourceURL);
     });
@@ -37,17 +41,8 @@ export default function Tab() {
         imageUri,
         TextRecognitionScript.JAPANESE
       );
-      let returnValue = '';
-      // Filters out non japanese text
-      for (let block of result.blocks) {
-        for (let line of block.lines) {
-          if(wanakana.isJapanese(line.text)) {
-            returnValue += line.text + '\n';
-          }
-        }
-      }
     
-      setRecognizedText(returnValue);
+      setRecognizedText(result.text);
     } catch (err) {
       console.error('Recognition error:', err);
       setError(err);
