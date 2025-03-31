@@ -6,6 +6,8 @@ import TextRecognition, {
 import { ThemedText } from '@/components/ThemedText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ImagePicker from 'react-native-image-crop-picker';
+import { createWorker } from 'tesseract.js';
+const wanakana = require('wanakana');
 
 export default function Tab() {
   const colorScheme = useColorScheme();
@@ -17,14 +19,15 @@ export default function Tab() {
 
   const openImagePicker = () => {
     ImagePicker.openPicker({
-      width: 300,
-      height: 400,
-      cropping: true
+      width: 2000,
+      height: 2000,
+      cropping: false
     }).then(image => {
       setSelectedImage(image.sourceURL);
     });
   };
 
+  
   const recognizeTextFromImage = async (imageUri) => {
     try {
       setIsLoading(true);
@@ -34,8 +37,17 @@ export default function Tab() {
         imageUri,
         TextRecognitionScript.JAPANESE
       );
-      console.log('Recognition result:', result);
-      setRecognizedText(result.text);
+      let returnValue = '';
+      // Filters out non japanese text
+      for (let block of result.blocks) {
+        for (let line of block.lines) {
+          if(wanakana.isJapanese(line.text)) {
+            returnValue += line.text + '\n';
+          }
+        }
+      }
+    
+      setRecognizedText(returnValue);
     } catch (err) {
       console.error('Recognition error:', err);
       setError(err);
@@ -44,9 +56,29 @@ export default function Tab() {
     }
   };
 
+  const recognizeTextFromImage1 = async (imageUri) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const worker = await createWorker({
+        langPath: require('../../assets/models/jpn.traineddata'), 
+      });
+
+      const result = worker.recognize(imageUri);
+      setRecognizedText(result.data.text);
+      await worker.terminate();
+    } catch (err) {
+      console.log("Erroring here")
+      console.error("Recognition error:", err);
+      setError(err);
+    } finally {
+      setIsLoading(false);
+    }
+  } 
+
   useEffect(() => {
     if (selectedImage) {
-      recognizeTextFromImage(selectedImage);
+      recognizeTextFromImage1(selectedImage);
     }
   }, [selectedImage]);
 
