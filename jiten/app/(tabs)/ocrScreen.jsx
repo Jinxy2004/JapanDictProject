@@ -6,8 +6,8 @@ import TextRecognition, {
 import { ThemedText } from '@/components/ThemedText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ImagePicker from 'react-native-image-crop-picker';
-import { createWorker } from 'tesseract.js';
 const wanakana = require('wanakana');
+
 
 export default function Tab() {
   const colorScheme = useColorScheme();
@@ -32,7 +32,7 @@ export default function Tab() {
     try {
       setIsLoading(true);
       setError(null);
-      
+  
       const result = await TextRecognition.recognize(
         imageUri,
         TextRecognitionScript.JAPANESE
@@ -56,29 +56,9 @@ export default function Tab() {
     }
   };
 
-  const recognizeTextFromImage1 = async (imageUri) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const worker = await createWorker({
-        langPath: require('../../assets/models/jpn.traineddata'), 
-      });
-
-      const result = worker.recognize(imageUri);
-      setRecognizedText(result.data.text);
-      await worker.terminate();
-    } catch (err) {
-      console.log("Erroring here")
-      console.error("Recognition error:", err);
-      setError(err);
-    } finally {
-      setIsLoading(false);
-    }
-  } 
-
   useEffect(() => {
     if (selectedImage) {
-      recognizeTextFromImage1(selectedImage);
+      recognizeTextFromImage(selectedImage);
     }
   }, [selectedImage]);
 
