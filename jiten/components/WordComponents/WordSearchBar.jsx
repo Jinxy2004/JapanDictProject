@@ -18,6 +18,7 @@ const WordSearchBar = () => {
     debounce(async (text) => {
       let results = "";
         try {
+          const startTime = performance.now();
           console.log("Current input is: ",text)
           if(!wanakana.isJapanese(text)) {
             console.log("Searching in first")
@@ -32,7 +33,8 @@ const WordSearchBar = () => {
             const ent_ids = await serachByKanjiElement(text,db)
             results = await fetchEntryDetails(ent_ids,db);
           }
-
+          const endTime = performance.now();
+          console.log(`Search completed in ${(endTime - startTime).toFixed(2)} ms, for word '${text}'`);
           setSearchResults(Array.isArray(results) ? results : []);
         } catch(error) {
           console.error('Error searching: ', error);
@@ -44,8 +46,12 @@ const WordSearchBar = () => {
 
   
   const handleInputChange = (text) => {
-    setSearchText(text);
-    debouncedSearch(text);
+    if(text === '') {
+      setSearchResults([]);
+    } else {
+      setSearchText(text);
+      debouncedSearch(text);
+    }
   };
 
   const handleClear = () => {

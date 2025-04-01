@@ -17,6 +17,7 @@ const KanjiSearchBar = () => {
     const debouncedSearch = useCallback(
     debounce(async (text) => {
         try {
+          const startTime = performance.now()
           console.log("Current input is: ",text);
           // Checks to see if the input isn't Japanese
           if(wanakana.isKanji(text)) {
@@ -33,6 +34,8 @@ const KanjiSearchBar = () => {
             const kanjiIds2 = await searchByMeaning(text,db)
             results = await returnKanjiDetailsByID(kanjiIds1.concat(kanjiIds2),db);
           } 
+          const endTime = performance.now();
+          console.log(`Search completed in ${(endTime - startTime).toFixed(2)} ms, for word '${text}'`);
           setSearchResults(Array.isArray(results) ? results : []);
 
         } catch(error) {
@@ -45,8 +48,12 @@ const KanjiSearchBar = () => {
 
   //
   const handleInputChange = (text) => {
-    setSearchText(text);
-    debouncedSearch(text);
+    if(text === '') {
+      setSearchResults([]);
+    } else {
+      setSearchText(text);
+      debouncedSearch(text);
+    }
   };
 
   const handleClear = () => {

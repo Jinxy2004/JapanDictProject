@@ -10,7 +10,7 @@ export function checkDB(db) {
       const rows = await db.getAllAsync(query, []);
       resolve(rows);
     } catch (err) {
-      console.error('Erorr message in searchByMeaning: ', err);
+      console.error('Erorr message in checkdb: ', err);
       reject(err);
     }
 
@@ -21,30 +21,18 @@ export function checkDB(db) {
 export function searchByGloss(userInput, db) {
   return new Promise(async (resolve, reject) => {
     try {
-      checkDB(db);
       const query = `
-      SELECT ent_seq FROM entries
-      JOIN senses ON entries.ent_seq = senses.entries_id
-      JOIN gloss ON gloss.senses_id = senses.id
-      WHERE 
-        gloss.word_info LIKE ? OR 
-        gloss.word_info LIKE ? OR 
-        gloss.word_info LIKE ? OR
-        gloss.word_info LIKE ? OR
-        gloss.word_info LIKE ? OR 
-        gloss.word_info LIKE ? 
-      GROUP BY ent_seq
-      LIMIT 50; 
+        SELECT ent_seq FROM entries
+        JOIN senses ON entries.ent_seq = senses.entries_id
+        JOIN gloss_fts ON gloss_fts.senses_id = senses.id
+        WHERE gloss_fts.word_info MATCH ?
+        GROUP BY ent_seq
+        LIMIT 50;
     `;
 
-      const params = [
-        userInput, // Exact match
-        `% ${userInput} %`, // Word surrounded by spaces
-        `% ${userInput}-%`, // Word with trailing hyphen
-        `%-${userInput} %`, // Word with leading hyphen
-        `%(${userInput})%`, // Word with trailing parenthesis
-        `%(${userInput} %`, // Word with leading parenthesis
-      ];
+      const params = [`"${userInput}*" OR "(${userInput})"`];
+
+
       const rows = await db.getAllAsync(query, params);
       const ent_ids = rows.map(row => row.ent_seq);
       resolve(ent_ids);
@@ -312,9 +300,11 @@ export function fetchSenses(ent_id, db) {
 export async function fetchEntryDetails(ent_seq_array, db) {
   const entryDetails = await Promise.all(
     ent_seq_array.map(async (ent_seq) => {
-      const kanjiElements = await fetchKanjiElements(ent_seq, db);
-      const readingElements = await fetchReadingElements(ent_seq, db);
-      const senses = await fetchSenses(ent_seq, db);
+      const [kanjiElements, readingElements, senses] = await Promise.all([
+        fetchKanjiElements(ent_seq, db),
+        fetchReadingElements(ent_seq, db),
+        fetchSenses(ent_seq, db)
+      ]);
 
       return {
         ent_seq,

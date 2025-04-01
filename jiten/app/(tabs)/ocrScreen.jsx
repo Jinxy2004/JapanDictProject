@@ -84,18 +84,18 @@ export default function Tab() {
   return (
     <GestureHandlerRootView style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
       <ScrollView>
-        <Button title="Open Image" onPress={openImagePicker}/>
-        {selectedImage && (
-          <Image 
-            source={{ uri: selectedImage }} 
-            style={styles.imagePreview} 
-            resizeMode="contain"
-          />
-        )}
-        <ThemedText style={styles.title}>Recognized Japanese Text:</ThemedText>
-        <ThemedText style={styles.textOutput}>
+      <Button title="Open Image" onPress={openImagePicker}/>
+      {selectedImage && (
+        <Image 
+          source={{ uri: selectedImage }} 
+          style={styles.imagePreview} 
+          resizeMode="contain"
+        />
+      )}
+      <ThemedText style={styles.title}>Recognized Japanese Text:</ThemedText>
+      <ThemedText style={styles.textOutput}>
           {recognizedText.join('\n') || 'No text recognized'}
-        </ThemedText>
+      </ThemedText>
       </ScrollView>
     </GestureHandlerRootView>
   );
