@@ -13,15 +13,15 @@ const wanakana = require('wanakana');
 export default function Tab() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const [recognizedText, setRecognizedText] = useState('');
+  const [recognizedText, setRecognizedText] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
 
   const openImagePicker = () => {
     ImagePicker.openPicker({
-      width: 300,
-      height: 300,
+      width: 500,
+      height: 500,
       multiple: false,
       cropping: false,
       mediaType: 'photo',
@@ -41,8 +41,13 @@ export default function Tab() {
         imageUri,
         TextRecognitionScript.JAPANESE
       );
+      let resultArray = [];
+      for(let block of result.blocks) {
+        resultArray.push(block.text);
+        console.log(wanakana.tokenize(block.text));
+      }
     
-      setRecognizedText(result.text);
+      setRecognizedText(resultArray);
     } catch (err) {
       console.error('Recognition error:', err);
       setError(err);
@@ -89,7 +94,7 @@ export default function Tab() {
         )}
         <ThemedText style={styles.title}>Recognized Japanese Text:</ThemedText>
         <ThemedText style={styles.textOutput}>
-          {recognizedText || 'No text recognized'}
+          {recognizedText.join('\n') || 'No text recognized'}
         </ThemedText>
       </ScrollView>
     </GestureHandlerRootView>
