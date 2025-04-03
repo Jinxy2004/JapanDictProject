@@ -119,12 +119,15 @@ export function serachByKanjiElement(userInput, db) {
 }
 
 // These three functions fetch all the related details based on the entry ids
-export function fetchReadingElements(ent_id, db) {
+export function fetchReadingElements(ent_seq_array, db) {
   return new Promise(async (resolve, reject) => {
     try {
+      const ent_ids = ent_seq_array.join(',');
       const query = `
         SELECT 
+          entries_id AS ent_seq,
           json_object(
+            'ent_seq', entries_id,
             'id', COALESCE(reading_elements.id, ''),
             'word_reading', COALESCE(reading_elements.word_reading, ''),
             'no_kanji', COALESCE(reading_elements.no_kanji, ''),
@@ -148,9 +151,9 @@ export function fetchReadingElements(ent_id, db) {
             )
           ) AS reading_data
         FROM reading_elements
-        WHERE reading_elements.entries_id = ?;
+        WHERE reading_elements.entries_id IN (${ent_ids});
       `;
-      const rows = await db.getAllAsync(query, [ent_id]);
+      const rows = await db.getAllAsync(query, []);
 
       if (rows.length === 0) {
         resolve(null);
@@ -166,12 +169,15 @@ export function fetchReadingElements(ent_id, db) {
 }
 
 
-export function fetchKanjiElements(ent_id, db) {
+export function fetchKanjiElements(ent_seq_array, db) {
   return new Promise(async (resolve, reject) => {
     try {
+      const ent_ids = ent_seq_array.join(',');
       const query = `
         SELECT 
+          entries_id AS ent_seq,
           json_object(
+            'ent_seq', entries_id,
             'id', COALESCE(kanji_elements.id, ''),
             'keb_element', COALESCE(kanji_elements.keb_element, ''),
             'kanji_info', COALESCE(
@@ -188,10 +194,11 @@ export function fetchKanjiElements(ent_id, db) {
             )
           ) AS kanji_data
         FROM kanji_elements
-        WHERE kanji_elements.entries_id = ?;
+        WHERE kanji_elements.entries_id IN (${ent_ids})
+        GROUP BY kanji_elements.id;
       `;
 
-      const rows = await db.getAllAsync(query, [ent_id]);
+      const rows = await db.getAllAsync(query, []);
 
       if (rows.length === 0) {
         resolve(null);
@@ -206,12 +213,15 @@ export function fetchKanjiElements(ent_id, db) {
   });
 }
 
-export function fetchSenses(ent_id, db) {
+export function fetchSenses(ent_seq_array, db) {
   return new Promise(async (resolve, reject) => {
     try {
+      const ent_ids = ent_seq_array.join(',');
       const query = `
         SELECT 
+          entries_id AS ent_seq,
           json_object(
+            'ent_seq', entries_id,
             'id', COALESCE(senses.id, ''),
             'sense_info', COALESCE(
               (SELECT json_group_array(COALESCE(extra_info, ''))
@@ -281,9 +291,10 @@ export function fetchSenses(ent_id, db) {
             )
           ) AS sense_data
         FROM senses
-        WHERE senses.entries_id = ?;
+        WHERE senses.entries_id IN (${ent_ids})
+        GROUP BY senses.id;
         `;
-      const rows = await db.getAllAsync(query, [ent_id]);
+      const rows = await db.getAllAsync(query, []);
       if (rows.length === 0) {
         resolve(null);
       } else {
@@ -291,13 +302,39 @@ export function fetchSenses(ent_id, db) {
         resolve(senses);
       }
     } catch (err) {
-      console.log("Error occured in fetchKanjiElements: ", err)
+      console.log("Error occured in fetchSenses: ", err)
       reject(err);
     }
   });
 }
 
 export async function fetchEntryDetails(ent_seq_array, db) {
+  // Fetchs all data for all entries at once
+  const startTime = performance.now();
+  const [allKanjiElements, allReadingElements, allSenses] = await Promise.all([
+    fetchKanjiElements(ent_seq_array, db),
+    fetchReadingElements(ent_seq_array, db),
+    fetchSenses(ent_seq_array, db)
+  ]);
+  // Loops through the entrys and sorts it by ent_seq
+  const entryDetails = ent_seq_array.map(ent_seq => {
+    const kanji = allKanjiElements ? allKanjiElements.filter(element => element.ent_seq === ent_seq) : [];
+    const reading = allReadingElements ? allReadingElements.filter(element => element.ent_seq === ent_seq) : [];
+    const sense = allSenses ? allSenses.filter(element => element.ent_seq === ent_seq) : [];
+
+    return {
+      ent_seq,
+      kanji_elements: kanji.length > 0 ? kanji : null,
+      reading_elements: reading.length > 0 ? reading : null,
+      senses: sense.length > 0 ? sense : null
+    };
+  });
+  const endTime = performance.now();
+  console.log(`Fetching entry details completed in ${(endTime - startTime).toFixed(2)} ms`);
+  return entryDetails;
+}
+// Backup func
+export async function fetchEntryDetails1(ent_seq_array, db) {
   const entryDetails = await Promise.all(
     ent_seq_array.map(async (ent_seq) => {
       const [kanjiElements, readingElements, senses] = await Promise.all([
