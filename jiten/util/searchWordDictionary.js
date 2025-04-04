@@ -136,9 +136,9 @@ export function fetchReadingElements(ent_seq_array, db) {
             re.id,
             re.word_reading,
             re.no_kanji,
-            GROUP_CONCAT(DISTINCT rr.restricted_reading) as restricted_readings,
-            GROUP_CONCAT(DISTINCT rp.re_priority_info) as reading_priorities,
-            GROUP_CONCAT(DISTINCT ri.specific_info) as reading_info
+            COALESCE(GROUP_CONCAT(DISTINCT rr.restricted_reading), '') as restricted_readings,
+            COALESCE(GROUP_CONCAT(DISTINCT rp.re_priority_info), '') as reading_priorities,
+            COALESCE(GROUP_CONCAT(DISTINCT ri.specific_info), '') as reading_info
           FROM reading_elements re
           LEFT JOIN readings_restricted rr ON rr.reading_elements_id = re.id
           LEFT JOIN readings_priority rp ON rp.reading_elements_id = re.id
@@ -153,9 +153,9 @@ export function fetchReadingElements(ent_seq_array, db) {
             'id', COALESCE(id, ''),
             'word_reading', COALESCE(word_reading, ''),
             'no_kanji', COALESCE(no_kanji, ''),
-            'restricted_readings', COALESCE(json_array(restricted_readings), json_array()),
-            'reading_priorities', COALESCE(json_array(reading_priorities), json_array()),
-            'reading_info', COALESCE(json_array(reading_info), json_array())
+            'restricted_readings', CASE WHEN restricted_readings = '' THEN json_array() ELSE json_array(restricted_readings) END,
+            'reading_priorities', CASE WHEN reading_priorities = '' THEN json_array() ELSE json_array(reading_priorities) END,
+            'reading_info', CASE WHEN reading_info = '' THEN json_array() ELSE json_array(reading_info) END
           ) AS reading_data
         FROM reading_base;
       `;
@@ -185,8 +185,8 @@ export function fetchKanjiElements(ent_seq_array, db) {
             ke.entries_id,
             ke.id,
             ke.keb_element,
-            GROUP_CONCAT(DISTINCT ki.k_info) as kanji_info,
-            GROUP_CONCAT(DISTINCT kp.k_priority_info) as kanji_priority
+            COALESCE(GROUP_CONCAT(DISTINCT ki.k_info), '') as kanji_info,
+            COALESCE(GROUP_CONCAT(DISTINCT kp.k_priority_info), '') as kanji_priority
           FROM kanji_elements ke
           LEFT JOIN kanji_info ki ON ki.kanji_elements_id = ke.id
           LEFT JOIN kanji_priority kp ON kp.kanji_elements_id = ke.id
@@ -199,8 +199,8 @@ export function fetchKanjiElements(ent_seq_array, db) {
             'ent_seq', entries_id,
             'id', COALESCE(id, ''),
             'keb_element', COALESCE(keb_element, ''),
-            'kanji_info', COALESCE(json_array(kanji_info), json_array()),
-            'kanji_priority', COALESCE(json_array(kanji_priority), json_array())
+            'kanji_info', CASE WHEN kanji_info = '' THEN json_array() ELSE json_array(kanji_info) END,
+            'kanji_priority', CASE WHEN kanji_priority = '' THEN json_array() ELSE json_array(kanji_priority) END
           ) AS kanji_data
         FROM kanji_base;
       `;
@@ -229,17 +229,17 @@ export function fetchSenses(ent_seq_array, db) {
           SELECT 
             s.entries_id,
             s.id,
-            GROUP_CONCAT(DISTINCT si.extra_info) as sense_info,
-            GROUP_CONCAT(DISTINCT d.dialect_info) as dialect,
-            GROUP_CONCAT(DISTINCT sk.kanjis_restricted_to) as stagk,
-            GROUP_CONCAT(DISTINCT sr.readings_restricted_to) as stagr,
-            GROUP_CONCAT(DISTINCT g.word_info) as gloss,
-            GROUP_CONCAT(DISTINCT a.ant_reference) as antonyms,
-            GROUP_CONCAT(DISTINCT pos.pos_info) as parts_of_speech,
-            GROUP_CONCAT(DISTINCT f.field_info) as field,
-            GROUP_CONCAT(DISTINCT cr.cross_reference) as cross_reference,
-            GROUP_CONCAT(DISTINCT m.misc_info) as misc,
-            GROUP_CONCAT(DISTINCT ls.l_source) as loanword_source
+            COALESCE(GROUP_CONCAT(DISTINCT si.extra_info), '') as sense_info,
+            COALESCE(GROUP_CONCAT(DISTINCT d.dialect_info), '') as dialect,
+            COALESCE(GROUP_CONCAT(DISTINCT sk.kanjis_restricted_to), '') as stagk,
+            COALESCE(GROUP_CONCAT(DISTINCT sr.readings_restricted_to), '') as stagr,
+            COALESCE(GROUP_CONCAT(DISTINCT g.word_info), '') as gloss,
+            COALESCE(GROUP_CONCAT(DISTINCT a.ant_reference), '') as antonyms,
+            COALESCE(GROUP_CONCAT(DISTINCT pos.pos_info), '') as parts_of_speech,
+            COALESCE(GROUP_CONCAT(DISTINCT f.field_info), '') as field,
+            COALESCE(GROUP_CONCAT(DISTINCT cr.cross_reference), '') as cross_reference,
+            COALESCE(GROUP_CONCAT(DISTINCT m.misc_info), '') as misc,
+            COALESCE(GROUP_CONCAT(DISTINCT ls.l_source), '') as loanword_source
           FROM senses s
           LEFT JOIN sense_info si ON si.senses_id = s.id
           LEFT JOIN dialect d ON d.senses_id = s.id
@@ -260,17 +260,17 @@ export function fetchSenses(ent_seq_array, db) {
           json_object(
             'ent_seq', entries_id,
             'id', COALESCE(id, ''),
-            'sense_info', COALESCE(json_array(sense_info), json_array()),
-            'dialect', COALESCE(json_array(dialect), json_array()),
-            'stagk', COALESCE(json_array(stagk), json_array()),
-            'stagr', COALESCE(json_array(stagr), json_array()),
-            'gloss', COALESCE(json_array(gloss), json_array()),
-            'antonyms', COALESCE(json_array(antonyms), json_array()),
-            'parts_of_speech', COALESCE(json_array(parts_of_speech), json_array()),
-            'field', COALESCE(json_array(field), json_array()),
-            'cross_reference', COALESCE(json_array(cross_reference), json_array()),
-            'misc', COALESCE(json_array(misc), json_array()),
-            'loanword_source', COALESCE(json_array(loanword_source), json_array())
+            'sense_info', CASE WHEN sense_info = '' THEN json_array() ELSE json_array(sense_info) END,
+            'dialect', CASE WHEN dialect = '' THEN json_array() ELSE json_array(dialect) END,
+            'stagk', CASE WHEN stagk = '' THEN json_array() ELSE json_array(stagk) END,
+            'stagr', CASE WHEN stagr = '' THEN json_array() ELSE json_array(stagr) END,
+            'gloss', CASE WHEN gloss = '' THEN json_array() ELSE json_array(gloss) END,
+            'antonyms', CASE WHEN antonyms = '' THEN json_array() ELSE json_array(antonyms) END,
+            'parts_of_speech', CASE WHEN parts_of_speech = '' THEN json_array() ELSE json_array(parts_of_speech) END,
+            'field', CASE WHEN field = '' THEN json_array() ELSE json_array(field) END,
+            'cross_reference', CASE WHEN cross_reference = '' THEN json_array() ELSE json_array(cross_reference) END,
+            'misc', CASE WHEN misc = '' THEN json_array() ELSE json_array(misc) END,
+            'loanword_source', CASE WHEN loanword_source = '' THEN json_array() ELSE json_array(loanword_source) END
           ) AS sense_data
         FROM sense_base;
       `;
@@ -301,7 +301,6 @@ export async function fetchEntryDetails(ent_seq_array, db) {
     const kanji = allKanjiElements ? allKanjiElements.filter(element => element.ent_seq === ent_seq) : [];
     const reading = allReadingElements ? allReadingElements.filter(element => element.ent_seq === ent_seq) : [];
     const sense = allSenses ? allSenses.filter(element => element.ent_seq === ent_seq) : [];
-
     return {
       ent_seq,
       kanji_elements: kanji.length > 0 ? kanji : null,

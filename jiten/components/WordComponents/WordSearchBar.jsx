@@ -37,9 +37,13 @@ const WordSearchBar = () => {
             const ent_ids = await searchByReadingElement(wanakana.toHiragana(text),db); 
             results = await fetchEntryDetails(ent_ids,db);
           }
+          
           const endTime = performance.now();
           console.log(`Search completed in ${(endTime - startTime).toFixed(2)} ms, for word '${text}'`);
-          setSearchResults(Array.isArray(results) ? results : []);
+          const rawResults = Array.isArray(results) ? results : [];
+          const sortedResults = sortResultsByClosestGlossMatch(rawResults, text);
+          setSearchResults(sortedResults);
+         
         } catch(error) {
           console.error('Error searching: ', error);
           Alert.alert('error', 'Failed to search, try again.');
@@ -47,7 +51,48 @@ const WordSearchBar = () => {
         };
     }, 500), // 500 debounce, so function recreates every?
   );
+  // Assigns a score to the gloss terms based on how close they are to the search term
+  const scoreGloss = (gloss,searchWord) => {
+    let highScore = -1;
+    const lowerCaseSearchWord = searchWord.toLowerCase();
+    gloss.forEach(term => {
+      console.log("Term is",term);
+      const lowerCaseTerm = term.toLowerCase();
+      if(lowerCaseSearchWord === lowerCaseTerm) {
+        highScore = Infinity;
+        return;
+      }
 
+      if(lowerCaseTerm.includes(lowerCaseSearchWord)) {
+        const score = lowerCaseTerm.length / lowerCaseSearchWord.length;
+        if(score > highScore) highScore = score;
+      }
+    })
+    return highScore;
+  }
+
+  const sortSearchTerms = (results, searchTerm) => {
+    
+    results.forEach()
+  }
+  // Sorts gloss results
+  const sortResultsByClosestGlossMatch = (results, searchTerm) => {
+    if (!searchTerm || !results.length) return results;
+    
+    return [...results].sort((a, b) => {
+      // Extract all glosses from senses (flattened)
+      const glossesA = a.senses.flatMap(sense => sense.gloss || []);
+      const glossesB = b.senses.flatMap(sense => sense.gloss || []);
+      
+  
+      // Calculate scores
+      const scoreA = scoreGloss(glossesA, searchTerm);
+      const scoreB = scoreGloss(glossesB, searchTerm);
+  
+      // Higher score = closer match = comes first
+      return scoreB - scoreA;
+    });
+  };
   
   const handleInputChange = (text) => {
     if(text === '') {
