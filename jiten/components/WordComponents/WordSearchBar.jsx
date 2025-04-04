@@ -20,7 +20,7 @@ const WordSearchBar = () => {
         try {
           const startTime = performance.now();
           console.log("Current input is: ",text)
-          if(!wanakana.isJapanese(text)) {
+          if(!wanakana.isJapanese(text) && !wanakana.isJapanese(wanakana.toHiragana(text))) {
             console.log("Searching in first")
             const ent_ids = await searchByGloss(text,db);
             results = await fetchEntryDetails(ent_ids,db);
@@ -31,6 +31,10 @@ const WordSearchBar = () => {
           } else if (wanakana.isJapanese(text) && !wanakana.isKana(text)) {
             console.log("Searching in third")
             const ent_ids = await serachByKanjiElement(text,db)
+            results = await fetchEntryDetails(ent_ids,db);
+          } else if (wanakana.isJapanese(wanakana.toHiragana(text))) {
+            console.log("Searching in fourth")
+            const ent_ids = await searchByReadingElement(wanakana.toHiragana(text),db); 
             results = await fetchEntryDetails(ent_ids,db);
           }
           const endTime = performance.now();

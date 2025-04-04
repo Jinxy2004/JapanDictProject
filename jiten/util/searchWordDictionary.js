@@ -119,39 +119,45 @@ export function serachByKanjiElement(userInput, db) {
 }
 
 // These three functions fetch all the related details based on the entry ids
+/*
+These three fetch queries work by first creating a base table with all the data,
+The base table selects the relevant data, aggregates any data that has multiple instances
+and joins the tables.
+Then the data from the base table is selected and converted to JSON format and also nulled out
+*/
 export function fetchReadingElements(ent_seq_array, db) {
   return new Promise(async (resolve, reject) => {
     try {
       const ent_ids = ent_seq_array.join(',');
       const query = `
+        WITH reading_base AS (
+          SELECT 
+            re.entries_id,
+            re.id,
+            re.word_reading,
+            re.no_kanji,
+            GROUP_CONCAT(DISTINCT rr.restricted_reading) as restricted_readings,
+            GROUP_CONCAT(DISTINCT rp.re_priority_info) as reading_priorities,
+            GROUP_CONCAT(DISTINCT ri.specific_info) as reading_info
+          FROM reading_elements re
+          LEFT JOIN readings_restricted rr ON rr.reading_elements_id = re.id
+          LEFT JOIN readings_priority rp ON rp.reading_elements_id = re.id
+          LEFT JOIN readings_info ri ON ri.reading_elements_id = re.id
+          WHERE re.entries_id IN (${ent_ids})
+          GROUP BY re.id
+        )
         SELECT 
           entries_id AS ent_seq,
           json_object(
             'ent_seq', entries_id,
-            'id', COALESCE(reading_elements.id, ''),
-            'word_reading', COALESCE(reading_elements.word_reading, ''),
-            'no_kanji', COALESCE(reading_elements.no_kanji, ''),
-            'restricted_readings', COALESCE(
-              (SELECT json_group_array(COALESCE(restricted_reading, ''))
-              FROM readings_restricted
-              WHERE readings_restricted.reading_elements_id = reading_elements.id),
-              json_array()
-            ),
-            'reading_priorities', COALESCE(
-              (SELECT json_group_array(COALESCE(re_priority_info, ''))
-              FROM readings_priority
-              WHERE readings_priority.reading_elements_id = reading_elements.id),
-              json_array()
-            ),
-            'reading_info', COALESCE(
-              (SELECT json_group_array(COALESCE(specific_info, ''))
-              FROM readings_info
-              WHERE readings_info.reading_elements_id = reading_elements.id),
-              json_array()
-            )
+            'id', COALESCE(id, ''),
+            'word_reading', COALESCE(word_reading, ''),
+            'no_kanji', COALESCE(no_kanji, ''),
+            'restricted_readings', COALESCE(json_array(restricted_readings), json_array()),
+            'reading_priorities', COALESCE(json_array(reading_priorities), json_array()),
+            'reading_info', COALESCE(json_array(reading_info), json_array())
           ) AS reading_data
-        FROM reading_elements
-        WHERE reading_elements.entries_id IN (${ent_ids});
+        FROM reading_base;
       `;
       const rows = await db.getAllAsync(query, []);
 
@@ -174,28 +180,29 @@ export function fetchKanjiElements(ent_seq_array, db) {
     try {
       const ent_ids = ent_seq_array.join(',');
       const query = `
+        WITH kanji_base AS (
+          SELECT 
+            ke.entries_id,
+            ke.id,
+            ke.keb_element,
+            GROUP_CONCAT(DISTINCT ki.k_info) as kanji_info,
+            GROUP_CONCAT(DISTINCT kp.k_priority_info) as kanji_priority
+          FROM kanji_elements ke
+          LEFT JOIN kanji_info ki ON ki.kanji_elements_id = ke.id
+          LEFT JOIN kanji_priority kp ON kp.kanji_elements_id = ke.id
+          WHERE ke.entries_id IN (${ent_ids})
+          GROUP BY ke.id
+        )
         SELECT 
           entries_id AS ent_seq,
           json_object(
             'ent_seq', entries_id,
-            'id', COALESCE(kanji_elements.id, ''),
-            'keb_element', COALESCE(kanji_elements.keb_element, ''),
-            'kanji_info', COALESCE(
-              (SELECT json_group_array(COALESCE(k_info, ''))
-               FROM kanji_info
-               WHERE kanji_info.kanji_elements_id = kanji_elements.id),
-              json_array()
-            ),
-            'kanji_priority', COALESCE(
-              (SELECT json_group_array(COALESCE(k_priority_info, ''))
-               FROM kanji_priority
-               WHERE kanji_priority.kanji_elements_id = kanji_elements.id),
-              json_array()
-            )
+            'id', COALESCE(id, ''),
+            'keb_element', COALESCE(keb_element, ''),
+            'kanji_info', COALESCE(json_array(kanji_info), json_array()),
+            'kanji_priority', COALESCE(json_array(kanji_priority), json_array())
           ) AS kanji_data
-        FROM kanji_elements
-        WHERE kanji_elements.entries_id IN (${ent_ids})
-        GROUP BY kanji_elements.id;
+        FROM kanji_base;
       `;
 
       const rows = await db.getAllAsync(query, []);
@@ -218,82 +225,55 @@ export function fetchSenses(ent_seq_array, db) {
     try {
       const ent_ids = ent_seq_array.join(',');
       const query = `
+        WITH sense_base AS (
+          SELECT 
+            s.entries_id,
+            s.id,
+            GROUP_CONCAT(DISTINCT si.extra_info) as sense_info,
+            GROUP_CONCAT(DISTINCT d.dialect_info) as dialect,
+            GROUP_CONCAT(DISTINCT sk.kanjis_restricted_to) as stagk,
+            GROUP_CONCAT(DISTINCT sr.readings_restricted_to) as stagr,
+            GROUP_CONCAT(DISTINCT g.word_info) as gloss,
+            GROUP_CONCAT(DISTINCT a.ant_reference) as antonyms,
+            GROUP_CONCAT(DISTINCT pos.pos_info) as parts_of_speech,
+            GROUP_CONCAT(DISTINCT f.field_info) as field,
+            GROUP_CONCAT(DISTINCT cr.cross_reference) as cross_reference,
+            GROUP_CONCAT(DISTINCT m.misc_info) as misc,
+            GROUP_CONCAT(DISTINCT ls.l_source) as loanword_source
+          FROM senses s
+          LEFT JOIN sense_info si ON si.senses_id = s.id
+          LEFT JOIN dialect d ON d.senses_id = s.id
+          LEFT JOIN stagk sk ON sk.senses_id = s.id
+          LEFT JOIN stagr sr ON sr.senses_id = s.id
+          LEFT JOIN gloss g ON g.senses_id = s.id
+          LEFT JOIN antonyms a ON a.senses_id = s.id
+          LEFT JOIN parts_of_speech pos ON pos.senses_id = s.id
+          LEFT JOIN field f ON f.senses_id = s.id
+          LEFT JOIN cross_references cr ON cr.senses_id = s.id
+          LEFT JOIN misc m ON m.senses_id = s.id
+          LEFT JOIN loanword_source ls ON ls.senses_id = s.id
+          WHERE s.entries_id IN (${ent_ids})
+          GROUP BY s.id
+        )
         SELECT 
           entries_id AS ent_seq,
           json_object(
             'ent_seq', entries_id,
-            'id', COALESCE(senses.id, ''),
-            'sense_info', COALESCE(
-              (SELECT json_group_array(COALESCE(extra_info, ''))
-              FROM sense_info
-              WHERE sense_info.senses_id = senses.id),
-              json_array()
-            ),
-            'dialect', COALESCE(
-              (SELECT json_group_array(COALESCE(dialect_info, ''))
-              FROM dialect
-              WHERE dialect.senses_id = senses.id),
-              json_array()
-            ),
-            'stagk', COALESCE(
-              (SELECT json_group_array(COALESCE(kanjis_restricted_to, ''))
-              FROM stagk
-              WHERE stagk.senses_id = senses.id),
-              json_array()
-            ),
-            'stagr', COALESCE(
-              (SELECT json_group_array(COALESCE(readings_restricted_to, ''))
-              FROM stagr
-              WHERE stagr.senses_id = senses.id),
-              json_array()
-            ),
-            'gloss', COALESCE(
-              (SELECT json_group_array(COALESCE(word_info, ''))
-              FROM gloss
-              WHERE gloss.senses_id = senses.id),
-              json_array()
-            ),
-            'antonyms', COALESCE(
-              (SELECT json_group_array(COALESCE(ant_reference, ''))
-              FROM antonyms
-              WHERE antonyms.senses_id = senses.id),
-              json_array()
-            ),
-            'parts_of_speech', COALESCE(
-              (SELECT json_group_array(COALESCE(pos_info, ''))
-              FROM parts_of_speech
-              WHERE parts_of_speech.senses_id = senses.id),
-              json_array()
-            ),
-            'field', COALESCE(
-              (SELECT json_group_array(COALESCE(field_info, ''))
-              FROM field
-              WHERE field.senses_id = senses.id),
-              json_array()
-            ),
-            'cross_reference', COALESCE(
-              (SELECT json_group_array(COALESCE(cross_reference, ''))
-              FROM cross_references
-              WHERE cross_references.senses_id = senses.id),
-              json_array()
-            ),
-            'misc', COALESCE(
-              (SELECT json_group_array(COALESCE(misc_info, ''))
-              FROM misc
-              WHERE misc.senses_id = senses.id),
-              json_array()
-            ),
-            'loanword_source', COALESCE(
-              (SELECT json_group_array(COALESCE(l_source, ''))
-              FROM loanword_source
-              WHERE loanword_source.senses_id = senses.id),
-              json_array()
-            )
+            'id', COALESCE(id, ''),
+            'sense_info', COALESCE(json_array(sense_info), json_array()),
+            'dialect', COALESCE(json_array(dialect), json_array()),
+            'stagk', COALESCE(json_array(stagk), json_array()),
+            'stagr', COALESCE(json_array(stagr), json_array()),
+            'gloss', COALESCE(json_array(gloss), json_array()),
+            'antonyms', COALESCE(json_array(antonyms), json_array()),
+            'parts_of_speech', COALESCE(json_array(parts_of_speech), json_array()),
+            'field', COALESCE(json_array(field), json_array()),
+            'cross_reference', COALESCE(json_array(cross_reference), json_array()),
+            'misc', COALESCE(json_array(misc), json_array()),
+            'loanword_source', COALESCE(json_array(loanword_source), json_array())
           ) AS sense_data
-        FROM senses
-        WHERE senses.entries_id IN (${ent_ids})
-        GROUP BY senses.id;
-        `;
+        FROM sense_base;
+      `;
       const rows = await db.getAllAsync(query, []);
       if (rows.length === 0) {
         resolve(null);
@@ -310,7 +290,7 @@ export function fetchSenses(ent_seq_array, db) {
 
 export async function fetchEntryDetails(ent_seq_array, db) {
   // Fetchs all data for all entries at once
-  const startTime = performance.now();
+  //const startTime = performance.now();
   const [allKanjiElements, allReadingElements, allSenses] = await Promise.all([
     fetchKanjiElements(ent_seq_array, db),
     fetchReadingElements(ent_seq_array, db),
@@ -329,8 +309,8 @@ export async function fetchEntryDetails(ent_seq_array, db) {
       senses: sense.length > 0 ? sense : null
     };
   });
-  const endTime = performance.now();
-  console.log(`Fetching entry details completed in ${(endTime - startTime).toFixed(2)} ms`);
+  //const endTime = performance.now();
+  //console.log(`Fetching entry details completed in ${(endTime - startTime).toFixed(2)} ms`);
   return entryDetails;
 }
 // Backup func
