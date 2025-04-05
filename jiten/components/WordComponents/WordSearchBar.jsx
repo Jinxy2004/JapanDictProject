@@ -71,10 +71,6 @@ const WordSearchBar = () => {
     return highScore;
   }
 
-  const sortSearchTerms = (results, searchTerm) => {
-    
-    results.forEach()
-  }
   // Sorts gloss results
   const sortResultsByClosestGlossMatch = (results, searchTerm) => {
     if (!searchTerm || !results.length) return results;

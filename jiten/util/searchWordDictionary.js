@@ -118,6 +118,46 @@ export function serachByKanjiElement(userInput, db) {
   });
 }
 
+export function searchBySingularReadingElement(userInput, db) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const query = `
+      SELECT ent_seq FROM entries
+      JOIN reading_elements ON entries.ent_seq = reading_elements.entries_id
+      WHERE 
+        reading_elements.word_reading = ?
+      GROUP BY ent_seq
+    `;
+
+      const ent_id = await db.getFirstAsync(query, [userInput]);
+      resolve(ent_id);
+    } catch (err) {
+      console.error("Error in searchByReadingElement: ", err);
+      reject(err);
+    }
+  });
+}
+
+export function serachBySingularKanjiElement(userInput, db) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const query = `
+      SELECT ent_seq FROM entries
+      JOIN kanji_elements ON entries.ent_seq = kanji_elements.entries_id
+      WHERE 
+        kanji_elements.keb_element = ?
+      GROUP BY ent_seq
+    `;
+
+      const ent_id = await db.getAllAsync(query, [userInput]);
+      resolve(ent_id);
+    } catch (err) {
+      console.error("Error in searchByKanjiElement: ", err);
+      reject(err);
+    }
+  });
+}
+
 // These three functions fetch all the related details based on the entry ids
 /*
 These three fetch queries work by first creating a base table with all the data,
@@ -287,6 +327,64 @@ export function fetchSenses(ent_seq_array, db) {
     }
   });
 }
+
+export function fetchModalData(ent_id, db) {
+  return new Promise(async (resolve, reject) => {
+    if (!db) {
+      reject(new Error('Database connection is not available'));
+      return;
+    }
+
+    try {
+      // First verify the entry exists
+      const verifyQuery = `SELECT ent_seq FROM entries WHERE ent_seq = ?`;
+      const verifyResult = await db.getAllAsync(verifyQuery, [ent_id]);
+
+      if (!verifyResult || verifyResult.length === 0) {
+        resolve(null);
+        return;
+      }
+
+      const query = `
+      SELECT 
+        json_object(
+          'keb', COALESCE(json_group_array(DISTINCT kanji_elements.keb_element), '[]'),
+          'reb', COALESCE(json_group_array(DISTINCT reading_elements.word_reading), '[]'),
+          'gloss', (
+            SELECT COALESCE(json_group_array(DISTINCT g.word_info), '[]')
+            FROM senses s
+            JOIN gloss g ON s.id = g.senses_id
+            WHERE s.entries_id = entries.ent_seq
+          )
+        ) AS modalData
+      FROM entries
+      LEFT JOIN kanji_elements ON kanji_elements.entries_id = entries.ent_seq
+      LEFT JOIN reading_elements ON reading_elements.entries_id = entries.ent_seq
+      WHERE entries.ent_seq = ?
+      GROUP BY entries.ent_seq;
+      `;
+
+      const rows = await db.getAllAsync(query, [ent_id]);
+
+      if (!rows || rows.length === 0) {
+        resolve(null);
+        return;
+      }
+
+      try {
+        const modalInfo = JSON.parse(rows[0].modalData);
+        resolve(modalInfo);
+      } catch (parseError) {
+        console.error("Error parsing modal data:", parseError);
+        reject(parseError);
+      }
+    } catch (err) {
+      console.error("Error occurred in fetchModalData:", err);
+      reject(err);
+    }
+  });
+}
+
 
 export async function fetchEntryDetails(ent_seq_array, db) {
   // Fetchs all data for all entries at once
