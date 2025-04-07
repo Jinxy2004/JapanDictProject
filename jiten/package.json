@@ -45,6 +45,7 @@
     "react-native-gesture-handler": "~2.20.2",
     "react-native-image-crop-picker": "^0.42.0",
     "react-native-image-picker": "^8.2.0",
+    "react-native-japanese-tokenizer": "^1.0.6",
     "react-native-modal": "^14.0.0-rc.1",
     "react-native-navigation": "^7.44.0",
     "react-native-pager-view": "6.5.1",

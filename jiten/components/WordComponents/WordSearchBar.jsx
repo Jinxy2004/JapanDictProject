@@ -56,7 +56,6 @@ const WordSearchBar = () => {
     let highScore = -1;
     const lowerCaseSearchWord = searchWord.toLowerCase();
     gloss.forEach(term => {
-      console.log("Term is",term);
       const lowerCaseTerm = term.toLowerCase();
       if(lowerCaseSearchWord === lowerCaseTerm) {
         highScore = Infinity;

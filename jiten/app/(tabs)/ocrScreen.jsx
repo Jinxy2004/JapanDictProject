@@ -60,8 +60,6 @@ export default function Tab() {
       joinedText = joinedText.replace(/[。]/g, match => match + ' ');
       // Finally, clean up any spaces before punctuation
       joinedText = joinedText.replace(/\s+([、。])/g, '$1');
-
-      const tokenizedText = wanakana.tokenize(joinedText);
       
       setRecognizedText(joinedText);
     } catch (err) {
@@ -111,7 +109,7 @@ export default function Tab() {
         <ThemedText style={styles.title}>Recognized Japanese Text:</ThemedText>
         <View style={styles.textContainer}>
         <SQLiteProvider databaseName='entireDict.db' assetSource={{ assetId: require('../../assets/database/entireDict.db')}}>
-        <PressableText tokenizedList={wanakana.tokenize(recognizedText)}/>
+        <PressableText inputText={recognizedText}/>
         </SQLiteProvider>
         </View>
       </ScrollView>

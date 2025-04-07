@@ -2,8 +2,9 @@ import { Pressable, View, Text, StyleSheet } from "react-native";
 import OcrModal from "./OcrModal";
 import { useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
+const wanakana = require('wanakana');
 
-const PressableText = ({ tokenizedList }) => {
+const PressableText = ({ inputText }) => {
     const [selectedWord, setSelectedWord] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const db = useSQLiteContext();
@@ -13,6 +14,10 @@ const PressableText = ({ tokenizedList }) => {
         setIsModalVisible(true);
     };
 
+    const tokenizeList = async () => {
+      
+    }
+    const tokenizedList = wanakana.tokenize(inputText);
     // Process the tokens to maintain proper formatting
     const processedTokens = tokenizedList.map((token, index) => {
         // Add space after period
