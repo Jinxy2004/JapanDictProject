@@ -7,7 +7,6 @@ import { ThemedText } from '@/components/ThemedText';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ImagePicker from 'react-native-image-crop-picker';
 import { GestureHandlerRootView, ScrollView } from 'react-native-gesture-handler';
-const wanakana = require('wanakana');
 import PressableText from '@/components/OcrComponents/PressableText';
 import { SQLiteProvider } from 'expo-sqlite';
 

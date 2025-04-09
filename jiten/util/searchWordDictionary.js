@@ -132,7 +132,7 @@ export function searchBySingularReadingElement(userInput, db) {
       const ent_id = await db.getFirstAsync(query, [userInput]);
       resolve(ent_id);
     } catch (err) {
-      console.error("Error in searchByReadingElement: ", err);
+      console.error("Error in searchBySingularReadingElement: ", err);
       reject(err);
     }
   });
@@ -152,7 +152,7 @@ export function serachBySingularKanjiElement(userInput, db) {
       const ent_id = await db.getAllAsync(query, [userInput]);
       resolve(ent_id);
     } catch (err) {
-      console.error("Error in searchByKanjiElement: ", err);
+      console.error("Error in searchBySingularKanjiElement: ", err);
       reject(err);
     }
   });

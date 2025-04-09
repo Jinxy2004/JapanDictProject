@@ -1,22 +1,57 @@
 import { Pressable, View, Text, StyleSheet } from "react-native";
 import OcrModal from "./OcrModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
+import { searchBySingularReadingElement, serachBySingularKanjiElement } from "@/util/searchWordDictionary";
 const wanakana = require('wanakana');
 
 const PressableText = ({ inputText }) => {
-    const [selectedWord, setSelectedWord] = useState(null);
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const db = useSQLiteContext();
+  const [selectedWord, setSelectedWord] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [processedText, setProcessedText] = useState([]); // Add state for processed text
+  
+  const db = useSQLiteContext();
 
-    const handlePress = (token) => {
-        setSelectedWord(token);
-        setIsModalVisible(true);
-    };
+  const handlePress = (token) => {
+      setSelectedWord(token);
+      setIsModalVisible(true);
+  };
 
+  useEffect(() => {
     const tokenizeList = async () => {
+      const tempNewText = [];
       
+      for(let i = 0; i < inputText.length; i++) {
+       for(let j = 5; j > 0; j--) {
+        const wordSubstring = inputText.substring(i,i + 5 - j);
+        console.log("I is ", i);
+        console.log("J is, ",j);
+        console.log("Word substring is: ",wordSubstring);
+        
+        if(wanakana.isHiragana(wordSubstring)) {
+          const ent_id = await searchBySingularReadingElement(wordSubstring,db);
+          console.log(ent_id);
+          if(ent_id) {
+            tempNewText.push(wordSubstring);
+            break;
+          }
+        } else if (wanakana.isJapanese(wordSubstring)) {
+            const ent_id = await serachBySingularKanjiElement(wordSubstring,db);
+            console.log(ent_id);
+            if(ent_id) {
+              tempNewText.push(wordSubstring)
+              break;
+            }
+        }
+       }
+      }
+      console.log("Final processed text:", tempNewText);
+      setProcessedText(tempNewText); // Update state with the processed text
     }
+    
+    tokenizeList();
+  }, [inputText, db]);
+    
     const tokenizedList = wanakana.tokenize(inputText);
     // Process the tokens to maintain proper formatting
     const processedTokens = tokenizedList.map((token, index) => {
