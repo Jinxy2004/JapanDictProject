@@ -127,9 +127,12 @@ export default function Tab() {
   useEffect(() => {
     if (recognizedText && tokenizerRef.current) {
       const tokenizedResult = tokenizerRef.current.tokenize(recognizedText);
-      const surfaceForms = tokenizedResult.map(token => token.surface_form);
-      setTokens(surfaceForms);
-      console.log(surfaceForms);
+      setTokens(tokenizedResult);
+      console.log(tokenizerRef.current.tokenize("見た",{ compact: true}));
+      console.log(tokenizerRef.current.tokenize("見た",{ compact: true, detailed: false}));
+      console.log(tokenizerRef.current.tokenize("見た",{ compact: true, detailed: true}));
+      console.log(tokenizerRef.current.tokenize("見た",{compact : false, detailed: true}));
+      //console.log(surfaceForms);
     }
   }, [recognizedText]);
 
