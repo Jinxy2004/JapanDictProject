@@ -1,5 +1,5 @@
 import { View, useColorScheme, StyleSheet, ActivityIndicator, Image, Button, Modal} from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import TextRecognition, {
   TextRecognitionScript,
 } from '@react-native-ml-kit/text-recognition';
@@ -9,15 +9,19 @@ import ImagePicker from 'react-native-image-crop-picker';
 import { GestureHandlerRootView, ScrollView } from 'react-native-gesture-handler';
 import PressableText from '@/components/OcrComponents/PressableText';
 import { SQLiteProvider } from 'expo-sqlite';
+import kuromoji from "@charlescoeder/react-native-kuromoji";
+import { Asset } from 'expo-asset';
 
 
 export default function Tab() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const [recognizedText, setRecognizedText] = useState([]);
+  const [tokens, setTokens] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const tokenizerRef = useRef(null);
 
   const openImagePicker = () => {
     ImagePicker.openPicker({
@@ -70,6 +74,66 @@ export default function Tab() {
   };
 
   useEffect(() => {
+    const assets = {
+      "base.dat.gz": Asset.fromModule(
+      require("../../assets/dict/base.dat.gz")
+      ),
+      "cc.dat.gz": Asset.fromModule(require("../../assets/dict/cc.dat.gz")),
+      "check.dat.gz": Asset.fromModule(
+      require("../../assets/dict/check.dat.gz")
+      ),
+      "tid.dat.gz": Asset.fromModule(require("../../assets/dict/tid.dat.gz")),
+      "tid_map.dat.gz": Asset.fromModule(
+      require("../../assets/dict/tid_map.dat.gz")
+      ),
+      "tid_pos.dat.gz": Asset.fromModule(
+      require("../../assets/dict/tid_pos.dat.gz")
+      ),
+      "unk.dat.gz": Asset.fromModule(require("../../assets/dict/unk.dat.gz")),
+      "unk_char.dat.gz": Asset.fromModule(
+      require("../../assets/dict/unk_char.dat.gz")
+      ),
+      "unk_compat.dat.gz": Asset.fromModule(
+      require("../../assets/dict/unk_compat.dat.gz")
+      ),
+      "unk_invoke.dat.gz": Asset.fromModule(
+      require("../../assets/dict/unk_invoke.dat.gz")
+      ),
+      "unk_map.dat.gz": Asset.fromModule(
+      require("../../assets/dict/unk_map.dat.gz")
+      ),
+      "unk_pos.dat.gz": Asset.fromModule(
+      require("../../assets/dict/unk_pos.dat.gz")
+      ),
+    };
+
+    kuromoji.builder({ assets }).build((err, tokenizer) => {
+      if (err) {
+        console.error("Kuromoji initialization error:", err);
+        return;
+      }
+      tokenizerRef.current = tokenizer; 
+      console.log("Tokenizer initialized");
+    });
+
+    // Cleanup on unmount
+    return () => {
+      if (tokenizerRef.current) {
+        tokenizerRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (recognizedText && tokenizerRef.current) {
+      const tokenizedResult = tokenizerRef.current.tokenize(recognizedText);
+      const surfaceForms = tokenizedResult.map(token => token.surface_form);
+      setTokens(surfaceForms);
+      console.log(surfaceForms);
+    }
+  }, [recognizedText]);
+
+  useEffect(() => {
     if (selectedImage) {
       recognizeTextFromImage(selectedImage);
     }
@@ -108,7 +172,7 @@ export default function Tab() {
         <ThemedText style={styles.title}>Recognized Japanese Text:</ThemedText>
         <View style={styles.textContainer}>
         <SQLiteProvider databaseName='entireDict.db' assetSource={{ assetId: require('../../assets/database/entireDict.db')}}>
-        <PressableText inputText={recognizedText}/>
+        <PressableText inputText={tokens}/>
         </SQLiteProvider>
         </View>
       </ScrollView>
