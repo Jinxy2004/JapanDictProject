@@ -8,9 +8,7 @@ export default function Tab() {
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
-      <SQLiteProvider databaseName='entireDict.db' assetSource={{ assetId: require('../../assets/database/entireDict.db')}}>
         <KanjiSearchBar/>
-      </SQLiteProvider>
     </View>
   );
 }

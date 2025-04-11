@@ -14,16 +14,15 @@ const OcrModal = ({ isVisible, onClose, word, db }) => {
         async function fetchWordInfo() {
             if (!word) return;
             try {
-                let ent_ids = '';
+                let ent_ids = []
                 if(wanakana.isKana(word)) {
                     ent_ids = await searchBySingularReadingElement(word, db);
                 } else {
                     ent_ids = await serachBySingularKanjiElement(word, db)
                 }
                 
-                
-                if (ent_ids && ent_ids.length > 0) {
-                    const modalData = await fetchModalData(ent_ids[0].ent_seq, db);
+                if (ent_ids) {
+                    const modalData = await fetchModalData(ent_ids.ent_seq, db);
                     setWordData(modalData);
                 } else {
                     setWordData(null);

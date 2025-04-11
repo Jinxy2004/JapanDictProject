@@ -21,6 +21,7 @@ export default function Tab() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [tokenizerLoading, setTokenizerLoading] = useState(false);
   const tokenizerRef = useRef(null);
 
   const openImagePicker = () => {
@@ -106,14 +107,14 @@ export default function Tab() {
       require("../../assets/dict/unk_pos.dat.gz")
       ),
     };
-
+    setTokenizerLoading(true);
     kuromoji.builder({ assets }).build((err, tokenizer) => {
       if (err) {
         console.error("Kuromoji initialization error:", err);
         return;
       }
       tokenizerRef.current = tokenizer; 
-      console.log("Tokenizer initialized");
+      setTokenizerLoading(false);
     });
 
     // Cleanup on unmount
@@ -128,10 +129,6 @@ export default function Tab() {
     if (recognizedText && tokenizerRef.current) {
       const tokenizedResult = tokenizerRef.current.tokenize(recognizedText);
       setTokens(tokenizedResult);
-      console.log(tokenizerRef.current.tokenize("見た",{ compact: true}));
-      console.log(tokenizerRef.current.tokenize("見た",{ compact: true, detailed: false}));
-      console.log(tokenizerRef.current.tokenize("見た",{ compact: true, detailed: true}));
-      console.log(tokenizerRef.current.tokenize("見た",{compact : false, detailed: true}));
       //console.log(surfaceForms);
     }
   }, [recognizedText]);
@@ -142,6 +139,14 @@ export default function Tab() {
     }
   }, [selectedImage]);
 
+  if (tokenizerLoading) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff'}]}>
+        <ActivityIndicator size="large"/>
+        <ThemedText>Loading tokenizer...</ThemedText>
+      </SafeAreaView>
+    );
+  }
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
@@ -172,11 +177,9 @@ export default function Tab() {
             resizeMode="contain"
           />
         )}
-        <ThemedText style={styles.title}>Recognized Japanese Text:</ThemedText>
-        <View style={styles.textContainer}>
-        <SQLiteProvider databaseName='entireDict.db' assetSource={{ assetId: require('../../assets/database/entireDict.db')}}>
-        <PressableText inputText={tokens}/>
-        </SQLiteProvider>
+        <ThemedText style={styles.title}>Recognized Japanese Text</ThemedText>
+        <View style={[styles.textContainer, { backgroundColor: isDark ? '#3d3e3b' : '#ffffff' }]}>
+        <PressableText style={{backgroundColor: isDark ? '#3d3e3b' : '#ffffff'}}inputText={tokens}/>
         </View>
       </ScrollView>
     </GestureHandlerRootView>
@@ -195,13 +198,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 20,
     fontWeight: 'bold',
+    textAlign: 'center',
+    width: '100%'
   },
   textContainer: {
     width: '100%',
     flex: 1,
     marginTop: 10,
     padding: 15,
-    backgroundColor: '#f5f5f5',
     borderRadius: 8,
   },
   textOutput: {
@@ -224,6 +228,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     width: '100%',
+    
   },
 });
 

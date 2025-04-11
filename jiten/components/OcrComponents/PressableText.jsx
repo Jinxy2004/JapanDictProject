@@ -1,14 +1,40 @@
-import { Pressable, View, Text, StyleSheet } from "react-native";
+import { Pressable, View, StyleSheet } from "react-native";
 import OcrModal from "./OcrModal";
-import { useEffect, useState, useRef } from "react";
+import { useState} from "react";
 import { useSQLiteContext } from "expo-sqlite";
 const wanakana = require('wanakana');
+import { useTheme } from "../ThemeContext";
+import { ThemedText } from "../ThemedText";
 
 const PressableText = ({ inputText }) => {
   const [selectedWord, setSelectedWord] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [processedText, setProcessedText] = useState([]); // Add state for processed text
   const db = useSQLiteContext();
+  const{theme, toggleTheme} = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      padding: 10,
+      backgroundColor: theme === "dark" ? '#3d3e3b' : "#ffffff",
+      borderRadius: 8,
+    },
+    token: {
+      paddingHorizontal: 0,
+      paddingVertical: 0,
+      margin: 0,
+      backgroundColor: 'transparent',
+    },
+    pressedToken: {
+      backgroundColor: '#000000',
+      borderRadius: 4,
+    },
+    tokenText: {
+      fontSize: 16,
+      lineHeight: 24,
+    },
+  });
 
 
   const handlePress = (token) => {
@@ -41,9 +67,9 @@ const PressableText = ({ inputText }) => {
                 pressed && styles.pressedToken
               ]}
             >
-              <Text style={styles.tokenText}>
+              <ThemedText style={styles.tokenText}>
                 {token}{addSpace ? ' ' : ''}
-              </Text>
+              </ThemedText>
             </Pressable>
           ))}
           <OcrModal 
@@ -59,28 +85,6 @@ const PressableText = ({ inputText }) => {
       );
     };
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 10,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-  },
-  token: {
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-    margin: 0,
-    backgroundColor: 'transparent',
-  },
-  pressedToken: {
-    backgroundColor: '#e0e0e0',
-    borderRadius: 4,
-  },
-  tokenText: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-});
+
 
 export default PressableText;

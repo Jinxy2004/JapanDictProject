@@ -149,7 +149,7 @@ export function serachBySingularKanjiElement(userInput, db) {
       GROUP BY ent_seq
     `;
 
-      const ent_id = await db.getAllAsync(query, [userInput]);
+      const ent_id = await db.getFirstAsync(query, [userInput]);
       resolve(ent_id);
     } catch (err) {
       console.error("Error in searchBySingularKanjiElement: ", err);
@@ -334,17 +334,7 @@ export function fetchModalData(ent_id, db) {
       reject(new Error('Database connection is not available'));
       return;
     }
-
     try {
-      // First verify the entry exists
-      const verifyQuery = `SELECT ent_seq FROM entries WHERE ent_seq = ?`;
-      const verifyResult = await db.getAllAsync(verifyQuery, [ent_id]);
-
-      if (!verifyResult || verifyResult.length === 0) {
-        resolve(null);
-        return;
-      }
-
       const query = `
       SELECT 
         json_object(
