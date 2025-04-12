@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import WordCard from '../../components/WordComponents/WordCard'
-import { ThemeProvider } from '../../components/ThemeContext';
+import WordCard from '../../../components/WordComponents/WordCard'
+import { ThemeProvider } from '../../../components/ThemeContext';
 
 export default function WordInfoDisplayScreen() {
   const params = useLocalSearchParams();
