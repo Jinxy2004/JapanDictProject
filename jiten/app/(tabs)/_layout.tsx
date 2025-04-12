@@ -1,12 +1,13 @@
 import { ThemedText } from "@/components/ThemedText";
+import { DrawerToggle } from "@/components/ui/DrawerToggle";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs } from "expo-router";
-import { useColorScheme } from "react-native";
+import { useTheme } from "@/components/ThemeContext";
 import { View } from "react-native";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   return (
     <View style={{ flex: 1, backgroundColor: isDark ? "#000000" : "#ffffff" }}>
@@ -35,6 +36,7 @@ export default function TabLayout() {
           name="index"
           options={{
             title: "Kanji Search",
+            headerRight: () => <DrawerToggle />,
             tabBarIcon: ({ color }) => (
               <View
                 style={{
@@ -53,6 +55,7 @@ export default function TabLayout() {
           name="wordSearch"
           options={{
             title: "Word Search",
+            headerRight: () => <DrawerToggle />,
             tabBarIcon: ({ color }) => (
               <View
                 style={{
@@ -71,6 +74,7 @@ export default function TabLayout() {
           name="ocrScreen"
           options={{
             title: "OCR Model",
+            headerRight: () => <DrawerToggle />,
             tabBarIcon: ({ color }) => (
               <FontAwesome size={24} name="camera" color={color} />
             ),

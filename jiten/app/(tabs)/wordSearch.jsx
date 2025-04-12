@@ -1,10 +1,10 @@
-import { View, useColorScheme, StyleSheet } from 'react-native';
-import { SQLiteProvider } from 'expo-sqlite';
+import { View, StyleSheet } from 'react-native';
 import WordSearchBar from '../../components/WordComponents/WordSearchBar';
+import { useTheme } from '@/components/ThemeContext';
 
 export default function Tab() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const {theme} = useTheme();
+  const isDark = theme === 'dark';
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>

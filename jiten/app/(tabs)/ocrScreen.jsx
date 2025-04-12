@@ -8,10 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import ImagePicker from 'react-native-image-crop-picker';
 import { GestureHandlerRootView, ScrollView } from 'react-native-gesture-handler';
 import PressableText from '@/components/OcrComponents/PressableText';
-import { SQLiteProvider } from 'expo-sqlite';
 import kuromoji from "@charlescoeder/react-native-kuromoji";
 import { Asset } from 'expo-asset';
-
 
 export default function Tab() {
   const colorScheme = useColorScheme();
@@ -129,7 +127,7 @@ export default function Tab() {
     if (recognizedText && tokenizerRef.current) {
       const tokenizedResult = tokenizerRef.current.tokenize(recognizedText);
       setTokens(tokenizedResult);
-      //console.log(surfaceForms);
+      console.log(tokenizerRef.current.tokenize("には"))
     }
   }, [recognizedText]);
 

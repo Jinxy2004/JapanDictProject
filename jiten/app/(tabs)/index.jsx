@@ -1,10 +1,10 @@
-import { View, StyleSheet, useColorScheme } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import KanjiSearchBar from '../../components/KanjiComponents/KanjiSearchBar';
-import { SQLiteProvider } from 'expo-sqlite';
+import { useTheme } from '@/components/ThemeContext';
 
 export default function Tab() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const {theme} = useTheme();
+  const isDark = theme === 'dark';
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
