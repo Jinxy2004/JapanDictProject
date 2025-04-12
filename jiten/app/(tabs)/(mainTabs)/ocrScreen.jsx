@@ -75,34 +75,34 @@ export default function Tab() {
   useEffect(() => {
     const assets = {
       "base.dat.gz": Asset.fromModule(
-      require("../../assets/dict/base.dat.gz")
+      require("../../../assets/dict/base.dat.gz")
       ),
-      "cc.dat.gz": Asset.fromModule(require("../../assets/dict/cc.dat.gz")),
+      "cc.dat.gz": Asset.fromModule(require("../../../assets/dict/cc.dat.gz")),
       "check.dat.gz": Asset.fromModule(
-      require("../../assets/dict/check.dat.gz")
+      require("../../../assets/dict/check.dat.gz")
       ),
-      "tid.dat.gz": Asset.fromModule(require("../../assets/dict/tid.dat.gz")),
+      "tid.dat.gz": Asset.fromModule(require("../../../assets/dict/tid.dat.gz")),
       "tid_map.dat.gz": Asset.fromModule(
-      require("../../assets/dict/tid_map.dat.gz")
+      require("../../../assets/dict/tid_map.dat.gz")
       ),
       "tid_pos.dat.gz": Asset.fromModule(
-      require("../../assets/dict/tid_pos.dat.gz")
+      require("../../../assets/dict/tid_pos.dat.gz")
       ),
-      "unk.dat.gz": Asset.fromModule(require("../../assets/dict/unk.dat.gz")),
+      "unk.dat.gz": Asset.fromModule(require("../../../assets/dict/unk.dat.gz")),
       "unk_char.dat.gz": Asset.fromModule(
-      require("../../assets/dict/unk_char.dat.gz")
+      require("../../../assets/dict/unk_char.dat.gz")
       ),
       "unk_compat.dat.gz": Asset.fromModule(
-      require("../../assets/dict/unk_compat.dat.gz")
+      require("../../../assets/dict/unk_compat.dat.gz")
       ),
       "unk_invoke.dat.gz": Asset.fromModule(
-      require("../../assets/dict/unk_invoke.dat.gz")
+      require("../../../assets/dict/unk_invoke.dat.gz")
       ),
       "unk_map.dat.gz": Asset.fromModule(
-      require("../../assets/dict/unk_map.dat.gz")
+      require("../../../assets/dict/unk_map.dat.gz")
       ),
       "unk_pos.dat.gz": Asset.fromModule(
-      require("../../assets/dict/unk_pos.dat.gz")
+      require("../../../assets/dict/unk_pos.dat.gz")
       ),
     };
     setTokenizerLoading(true);

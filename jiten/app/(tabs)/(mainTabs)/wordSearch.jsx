@@ -1,5 +1,5 @@
 import { View, StyleSheet } from 'react-native';
-import KanjiSearchBar from '../../components/KanjiComponents/KanjiSearchBar';
+import WordSearchBar from '../../../components/WordComponents/WordSearchBar';
 import { useTheme } from '@/components/ThemeContext';
 
 export default function Tab() {
@@ -8,11 +8,10 @@ export default function Tab() {
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
-        <KanjiSearchBar/>
+        <WordSearchBar/>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
