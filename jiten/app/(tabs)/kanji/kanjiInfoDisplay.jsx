@@ -2,7 +2,6 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import KanjiCard from '../../../components/KanjiComponents/KanjiCard';
-import { ThemeProvider } from '../../../components/ThemeContext';
 import { Stack } from 'expo-router';
 
 export default function KanjiDetailScreen() {
@@ -15,10 +14,9 @@ export default function KanjiDetailScreen() {
   const dict_references = JSON.parse(params.dict_references);
 
   return (
-    
-    <ThemeProvider>
-      <Stack.Screen options={{ headerShown: true, title: 'Kanji Details' }} />
+      
       <View style={styles.container}>
+        <Stack.Screen options={{ headerShown: true, title: 'Kanji Details' }} />
         <KanjiCard
           kanji={params.id}
           kanji_meanings={kanji_meanings}
@@ -33,7 +31,6 @@ export default function KanjiDetailScreen() {
           dict_references={dict_references}
         />
       </View>
-    </ThemeProvider>
   );
 }
 

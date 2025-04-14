@@ -30,7 +30,7 @@ const KanjiSearchDisplayCard = ({
         marginVertical: 4,
         padding: 8,
         borderWidth: 1,
-        borderBottomColor: '#ccc',
+        borderColor: theme === "dark" ? '#fff' : "#000",
         borderRadius: 8,
         backgroundColor: theme === "dark" ? '#3d3e3b' : "#ffffff",
     },

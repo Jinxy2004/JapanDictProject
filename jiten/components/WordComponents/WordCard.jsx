@@ -10,32 +10,9 @@ const WordCard = ({
   reading_elements = [],
   senses = []
 }) => {
-   const{theme, toggleTheme} = useTheme();
-   
-   const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      width: '100%',
-    },
-    card: {
-      flex: 1, 
-      width: '100%',
-      padding: 16, 
-      backgroundColor: theme === "dark" ? '#3d3e3b' : "#ffffff",
-    },
-    kanjiHeader: {
-      fontSize: 24,
-      marginBottom: 16, 
-    },
-    scrollView: {
-      flex: 1, 
-    },
-    extraInfoText: {
-      marginLeft: 16,
-      color: theme === "dark" ? "#a0a0a0" : "#666666" ,
-      fontSize: 12,
-    }
-  });
+   const{theme} = useTheme();
+   const styles = getStyles(theme);
+  
   // Formats the dict references as they are objects within objects and need to be reformatted.
 
   // Helper functions
@@ -46,6 +23,10 @@ const WordCard = ({
     
     return senses.every(sense => JSON.stringify(sense.parts_of_speech) === firstPOS);
   };
+
+  function kanjiEleExists() {
+    return kanji_elements.length > 0;
+  }
 
   function stagRorKExists(ele) {
     return ele.stagk.length > 0 || ele.stagr.length > 0;
@@ -105,11 +86,16 @@ const WordCard = ({
   return (
     // Displays a singular word information via dynamic rendering
     <GestureHandlerRootView style={styles.container}>
+      <View style={{ height: 1, backgroundColor: theme === 'dark' ? '#444' : '#ccc', width: '100%' }} />
       <View style={styles.card}>
         <ScrollView style={styles.scrollView}>
            {/* Handles all kanji information */}
            <View>
-            <ThemedText>Kanji Elements: </ThemedText>
+           {kanjiEleExists() && (
+          <View style={styles.lineHeader}>
+          <ThemedText type="defaultSemiBold">Kanji Info</ThemedText>
+          </View>
+          )}
             {kanji_elements.map(ele => (
               <View key={ele.id}>
                  {/* Handles keb elements */}
@@ -127,7 +113,9 @@ const WordCard = ({
            </View>
           {/* Handles all reading information */}
           <View>
-          {<ThemedText>Reading elements: </ThemedText>}
+          <View style={styles.lineHeader}>
+            <ThemedText type="defaultSemiBold">Reading Info</ThemedText>
+          </View>
             {reading_elements.map(ele => (
               <View key={ele.id}>
                 {/* Handles each words readings */}
@@ -147,7 +135,9 @@ const WordCard = ({
               </View>
             ))}
           </View>
-          <ThemedText>Senses: </ThemedText> 
+          <View style={styles.lineHeader}>
+            <ThemedText type="defaultSemiBold">Word Info</ThemedText>
+          </View>    
           <View>
             {/* Handles all sense information */}
             {senses.map(ele => (
@@ -209,5 +199,40 @@ const WordCard = ({
     </GestureHandlerRootView>
   );
 };
+
+const getStyles = (theme) => StyleSheet.create({
+  container: {
+    flex: 1,
+    width: '100%',
+  },
+  card: {
+    flex: 1, 
+    width: '100%',
+    padding: 16, 
+    backgroundColor: theme === "dark" ? '#000' : "#fff",
+  },
+  kanjiHeader: {
+    fontSize: 24,
+    marginBottom: 16, 
+  },
+  scrollView: {
+    flex: 1, 
+  },
+  extraInfoText: {
+    marginLeft: 16,
+    color: theme === "dark" ? "#a0a0a0" : "#666666" ,
+    fontSize: 12,
+  },
+  lineHeader: {
+    flex: 1,
+    width: "100%",
+    height: 25,
+    backgroundColor: theme === 'dark' ? 'rgba(220, 220, 220, .5)' : 'rgba(0,0,0,.5)',
+    borderRadius: 4,
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  }
+});
 
 export default WordCard;

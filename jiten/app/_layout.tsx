@@ -4,6 +4,7 @@ import { SQLiteProvider } from "expo-sqlite";
 import { CustomDrawerContent } from "../components/ui/CustomDrawer";
 import { Drawer } from "expo-router/drawer";
 import { useTheme } from "@/components/ThemeContext";
+import { Stack } from "expo-router";
 
 export default function Layout() {
   return (

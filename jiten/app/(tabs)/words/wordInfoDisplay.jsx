@@ -2,7 +2,6 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import WordCard from '../../../components/WordComponents/WordCard'
-import { ThemeProvider } from '../../../components/ThemeContext';
 
 export default function WordInfoDisplayScreen() {
   const params = useLocalSearchParams();
@@ -13,7 +12,6 @@ export default function WordInfoDisplayScreen() {
   const senses = JSON.parse(params.senses);
 
   return (
-    <ThemeProvider>
       <View style={styles.container}>
         <WordCard
           kanji_elements={kanji_elements}
@@ -21,7 +19,6 @@ export default function WordInfoDisplayScreen() {
           senses={senses}
         />
       </View>
-    </ThemeProvider>
   );
 }
 

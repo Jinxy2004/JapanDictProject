@@ -4,6 +4,7 @@ import { searchByReadingElement, searchByGloss, serachByKanjiElement, fetchEntry
 import { ScrollView, GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSQLiteContext } from "expo-sqlite";
 import KanjiSearchDisplayCard from "./WordSearchDisplayCard.jsx";
+import { useTheme } from "../ThemeContext";
 const debounce = require('debounce');
 const wanakana = require('wanakana');
 
@@ -13,6 +14,8 @@ const WordSearchBar = () => {
   // value is a function that lets you update the current value and re-render
     const[searchText, setSearchText] = useState('') // This stores the input values
     const[searchResults, setSearchResults] = useState([]) // This stores the resulting array of searches
+    const {theme} = useTheme();
+    const styles = getStyles(theme)
 
     const debouncedSearch = useCallback(
     debounce(async (text) => {
@@ -105,13 +108,14 @@ const WordSearchBar = () => {
 
     return (
         <GestureHandlerRootView style={{ flex: 1, width: '100%' }}>
+          <View style={{ height: 1, backgroundColor: theme === 'dark' ? '#444' : '#ccc', width: '100%' }} />
           <View style={styles.container}>
             {/*Display search bar*/}
             <View style={styles.searchContainer}>
               <TextInput
-                style={[styles.input, { color: '#ffffff' }]}
+                style={[styles.input, { color: theme === "dark" ? '#fff' : "#000" }]}
                 placeholder='Search'
-                placeholderTextColor={'rgba(255,255,255,.5)'}
+                placeholderTextColor={theme === 'dark' ? 'rgba(255,255,255,.7)' : 'rgba(0,0,0,.7)'}
                 value={searchText}
                 autoCorrect={false}
                 onChangeText={handleInputChange} // Uses the debounce handler
@@ -123,7 +127,9 @@ const WordSearchBar = () => {
               )}
             </View>
             {/*Displays search results via a series of calls*/}
-            <ScrollView style={styles.scrollView}>
+            <ScrollView style={styles.scrollView}
+            contentContainerStyle={{paddingBottom: 16}}
+            showsVerticalScrollIndicator={false}>
               {searchResults.map((word,index) => (
                 <KanjiSearchDisplayCard 
                   key={index}
@@ -138,7 +144,7 @@ const WordSearchBar = () => {
     );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
     container: {
       flex: 1,
       width: '100%',
@@ -147,7 +153,7 @@ const styles = StyleSheet.create({
     searchContainer: {
       width: '100%',
       marginBottom: 16,
-      backgroundColor: '#1e1e1f',
+      backgroundColor: theme === "dark" ? '#3d3e3b' : "#ffffff",
     },
     input: {
       height: 40,

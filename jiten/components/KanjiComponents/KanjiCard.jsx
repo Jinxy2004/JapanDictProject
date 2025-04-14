@@ -18,27 +18,10 @@ const KanjiCard = ({
   kun_readings = [],
   dict_references = [],
 }) => {
-   const{theme, toggleTheme} = useTheme();
 
-   const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      width: '100%',
-    },
-    card: {
-      flex: 1, 
-      width: '100%',
-      padding: 16, 
-      backgroundColor: theme === "dark" ? '#3d3e3b' : "#ffffff",
-    },
-    kanjiHeader: {
-      fontSize: 24,
-      marginBottom: 16, 
-    },
-    scrollView: {
-      flex: 1, 
-    },
-  });
+   const{theme} = useTheme();
+   const styles = getStyles(theme);
+   
   // Formats the dict references as they are objects within objects and need to be reformatted.
   const formatDictReferences = (references) => {
     return references.map((ref,index) => (
@@ -65,9 +48,19 @@ const KanjiCard = ({
   return (
     // Displays a singular kanji information 
     <GestureHandlerRootView style={styles.container}>
+      <View style={{ height: 1, backgroundColor: theme === 'dark' ? '#444' : '#ccc', width: '100%' }} />
       <View style={styles.card}>
-        <ScrollView style={styles.scrollView}>
-          <ThemedText style={styles.kanjiHeader}>{kanji}</ThemedText>
+        <ScrollView style={styles.scrollView} contentContainerStyle={{paddingBottom: 16}}>
+          <ThemedText style={styles.kanjiHeader} type="title">{kanji}</ThemedText>
+          <View style={styles.lineHeader}>
+            <ThemedText type="defaultSemiBold">Main Info</ThemedText>
+          </View>
+          <ThemedText>Meanings: {kanji_meanings.join(', ')}</ThemedText>
+          <ThemedText>Ony readings: {ony_readings.join(', ')}</ThemedText>
+          <ThemedText>Kun readings: {kun_readings.join(', ')}</ThemedText>
+          <View style={styles.lineHeader}>
+            <ThemedText type="defaultSemiBold">Extra Info</ThemedText>
+          </View>
           <ThemedText>Radical number: {radical_num}</ThemedText>
           <ThemedText>Stroke count: {stroke_count}</ThemedText>
           {/* Dynamic rendering to only show if the values exist */}
@@ -83,15 +76,44 @@ const KanjiCard = ({
           {gradeLearnedExists() && (
             <ThemedText>Grade learned: {grade_learned}</ThemedText>
           )}
-          <ThemedText>Meanings: {kanji_meanings.join(', ')}</ThemedText>
-          <ThemedText>Ony readings: {ony_readings.join(', ')}</ThemedText>
-          <ThemedText>Kun readings: {kun_readings.join(', ')}</ThemedText>
-          <ThemedText>Dict references: </ThemedText>
+          <View style={styles.lineHeader}>
+            <ThemedText type="defaultSemiBold">Dict References</ThemedText>
+          </View>
           {formatDictReferences(dict_references)}
         </ScrollView>
       </View>
     </GestureHandlerRootView>
   );
 };
+
+const getStyles = (theme) => StyleSheet.create({
+  container: {
+    flex: 1,
+    width: '100%',
+  },
+  card: {
+    flex: 1, 
+    width: '100%',
+    padding: 16,
+    backgroundColor: theme === "dark" ? '#000' : "#fff",
+  },
+  kanjiHeader: {
+    marginTop: 16,
+    marginBottom: 16, 
+  },
+  scrollView: {
+    width: "100%"
+  },
+  lineHeader: {
+    flex: 1,
+    width: "100%",
+    height: 25,
+    backgroundColor: theme === 'dark' ? 'rgba(220, 220, 220, .5)' : 'rgba(0,0,0,.5)',
+    borderRadius: 4,
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  }
+});
 
 export default KanjiCard;

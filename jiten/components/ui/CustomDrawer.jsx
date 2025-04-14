@@ -1,23 +1,31 @@
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { ThemedText } from '../ThemedText';
-import { useColorScheme } from 'react-native';
+import { useTheme } from '../ThemeContext';
+import { useRouter } from 'expo-router';
 
 export function CustomDrawerContent({ navigation }) {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const {theme} = useTheme();
+  const styles = getStyles(theme);
+  const router = useRouter();
 
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#fff' }]}>
+    <View style={[styles.container, { backgroundColor: theme === 'dark' ? '#000' : '#fff' }]}>
       <TouchableOpacity 
         style={styles.drawerItem}
-        onPress={() => navigation.navigate('(tabs)')}
+        onPress={() => router.push('/')}
+      >
+        <ThemedText style={styles.drawerText}>Home page</ThemedText>
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.drawerItem}
+        onPress={() => router.push('/(tabs)/(mainTabs)')}
       >
         <ThemedText style={styles.drawerText}>Dictionary</ThemedText>
       </TouchableOpacity>
       
       <TouchableOpacity 
         style={styles.drawerItem}
-        onPress={() => navigation.navigate('settings')}
+        onPress={() => router.push('(tabs)/settings')}
       >
         <ThemedText style={styles.drawerText}>Settings</ThemedText>
       </TouchableOpacity>
@@ -25,7 +33,7 @@ export function CustomDrawerContent({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 50,

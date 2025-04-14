@@ -27,7 +27,7 @@ const PressableText = ({ inputText }) => {
       backgroundColor: 'transparent',
     },
     pressedToken: {
-      backgroundColor: '#000000',
+      backgroundColor: theme === "dark" ? 'rgba(136, 136, 136, 0.5)' : "rgba(0,0,0,.5)" ,
       borderRadius: 4,
     },
     tokenText: {

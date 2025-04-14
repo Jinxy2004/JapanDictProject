@@ -1,4 +1,4 @@
-import { View, useColorScheme, StyleSheet, ActivityIndicator, Image, Button, Modal} from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Image, Button} from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 import TextRecognition, {
   TextRecognitionScript,
@@ -10,28 +10,31 @@ import { GestureHandlerRootView, ScrollView } from 'react-native-gesture-handler
 import PressableText from '@/components/OcrComponents/PressableText';
 import kuromoji from "@charlescoeder/react-native-kuromoji";
 import { Asset } from 'expo-asset';
+import { useTheme } from '@/components/ThemeContext';
 
 export default function Tab() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const {theme} = useTheme();
   const [recognizedText, setRecognizedText] = useState([]);
   const [tokens, setTokens] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [tokenizerLoading, setTokenizerLoading] = useState(false);
+  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
   const tokenizerRef = useRef(null);
+  const styles = getStyles(theme);
 
   const openImagePicker = () => {
     ImagePicker.openPicker({
-      width: 500,
-      height: 500,
       multiple: false,
       cropping: false,
       mediaType: 'photo',
       compressImageQuality: 0.8,
     }).then(image => {
       setSelectedImage(image.sourceURL);
+
+      Image.getSize(image.sourceURL, (width,height) =>
+      setImageDimensions({ width, height}));
     });
   };
 
@@ -127,7 +130,6 @@ export default function Tab() {
     if (recognizedText && tokenizerRef.current) {
       const tokenizedResult = tokenizerRef.current.tokenize(recognizedText);
       setTokens(tokenizedResult);
-      console.log(tokenizerRef.current.tokenize("には"))
     }
   }, [recognizedText]);
 
@@ -139,7 +141,7 @@ export default function Tab() {
 
   if (tokenizerLoading) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff'}]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme === 'dark' ? '#000000' : '#ffffff'}]}>
         <ActivityIndicator size="large"/>
         <ThemedText>Loading tokenizer...</ThemedText>
       </SafeAreaView>
@@ -147,7 +149,7 @@ export default function Tab() {
   }
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
+      <SafeAreaView style={[styles.container, { backgroundColor: theme === 'dark' ? '#000000' : '#ffffff' }]}>
         <ActivityIndicator size="large" />
         <ThemedText>Processing Japanese text...</ThemedText>
       </SafeAreaView>
@@ -156,7 +158,7 @@ export default function Tab() {
 
   if (error) {
     return (
-      <View style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
+      <View style={[styles.container, { backgroundColor: theme === 'dark' ? '#000000' : '#ffffff' }]}>
         <ThemedText>Error:</ThemedText>
         <ThemedText>{error.message}</ThemedText>
         <Button title="Try Again" onPress={() => setError(null)} />
@@ -165,26 +167,32 @@ export default function Tab() {
   }
 
   return (
-    <GestureHandlerRootView style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
+    <GestureHandlerRootView style={[styles.container, { backgroundColor: theme === 'dark' ? '#000000' : '#ffffff' }]}>
       <ScrollView style={styles.scrollView}>
         <Button title="Open Image" onPress={openImagePicker}/>
         {selectedImage && (
           <Image 
             source={{ uri: selectedImage }} 
-            style={styles.imagePreview} 
+            style={{
+              width: "100%",
+              height: ((imageDimensions.height + 100) / imageDimensions.width) * 100 + "%",
+              borderWidth: 1,
+              borderRadius: 8,
+              borderColor: theme === "dark" ? "#fff" : "#000",
+            }} 
             resizeMode="contain"
           />
         )}
         <ThemedText style={styles.title}>Recognized Japanese Text</ThemedText>
-        <View style={[styles.textContainer, { backgroundColor: isDark ? '#3d3e3b' : '#ffffff' }]}>
-        <PressableText style={{backgroundColor: isDark ? '#3d3e3b' : '#ffffff'}}inputText={tokens}/>
+        <View style={[styles.textContainer]}>
+        <PressableText style={{backgroundColor: theme === 'dark' ? '#3d3e3b' : '#ffffff'}}inputText={tokens}/>
         </View>
       </ScrollView>
     </GestureHandlerRootView>
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -205,6 +213,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
     padding: 15,
     borderRadius: 8,
+    backgroundColor: theme === 'dark' ? '#3d3e3b' : '#ffffff',
+    borderWidth: 1,
+    borderColor: theme === "dark" ? '#fff' : "#000",
   },
   textOutput: {
     marginTop: 10,
@@ -221,8 +232,8 @@ const styles = StyleSheet.create({
   },
   imagePreview: {
     width: '100%',
-    height: 300,
-    marginBottom: 20,
+    aspectRatio: 1,
+    marginBottom: 10,
   },
   scrollView: {
     width: '100%',

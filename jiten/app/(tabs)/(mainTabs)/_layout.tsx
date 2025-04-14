@@ -33,25 +33,6 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="index"
-          options={{
-            title: "Kanji Search",
-            headerRight: () => <DrawerToggle />,
-            tabBarIcon: ({ color }) => (
-              <View
-                style={{
-                  width: 50,
-                  height: 50,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <ThemedText style={{ color, fontSize: 22 }}>漢字</ThemedText>
-              </View>
-            ),
-          }}
-        />
-        <Tabs.Screen
           name="wordSearch"
           options={{
             title: "Word Search",
@@ -66,6 +47,25 @@ export default function TabLayout() {
                 }}
               >
                 <ThemedText style={{ color, fontSize: 22 }}>言葉</ThemedText>
+              </View>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="kanjiScreen"
+          options={{
+            title: "Kanji Search",
+            headerRight: () => <DrawerToggle />,
+            tabBarIcon: ({ color }) => (
+              <View
+                style={{
+                  width: 50,
+                  height: 50,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <ThemedText style={{ color, fontSize: 22 }}>漢字</ThemedText>
               </View>
             ),
           }}
