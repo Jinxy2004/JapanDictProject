@@ -1,14 +1,17 @@
 import Modal from 'react-native-modal';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { fetchModalData, searchBySingularReadingElement, serachBySingularKanjiElement } from "@/util/searchWordDictionary";
 import { useState, useEffect } from 'react';
 const wanakana = require('wanakana');
 import { ThemedText } from '../ThemedText';
 import { useTheme } from "../ThemeContext";
+import { useRouter } from 'expo-router';
 
 const OcrModal = ({ isVisible, onClose, word, db }) => {
     const [wordData, setWordData] = useState(null);
+    const [entID, setEntID] = useState(null);
     const{theme, toggleTheme} = useTheme();
+    const router = useRouter();
 
     useEffect(() => {
         async function fetchWordInfo() {
@@ -22,6 +25,7 @@ const OcrModal = ({ isVisible, onClose, word, db }) => {
                 }
                 
                 if (ent_ids) {
+                    setEntID(ent_ids);
                     const modalData = await fetchModalData(ent_ids.ent_seq, db);
                     setWordData(modalData);
                 } else {
@@ -34,6 +38,10 @@ const OcrModal = ({ isVisible, onClose, word, db }) => {
 
         fetchWordInfo();
     }, [word, db]);
+
+    async function getAllWordData() {
+
+    }
 
     const styles = StyleSheet.create({
         modalContent: {
@@ -61,6 +69,11 @@ const OcrModal = ({ isVisible, onClose, word, db }) => {
                         <ThemedText>Kanji: {wordData.keb.join(', ')}</ThemedText>
                         <ThemedText>Reading: {wordData.reb.join(', ')}</ThemedText>
                         <ThemedText>Meaning: {wordData.gloss.join(', ')}</ThemedText>
+                        <TouchableOpacity onPress={
+                            console.log()
+                        }>
+                            <ThemedText type="link">Word Page</ThemedText>
+                        </TouchableOpacity>
                     </View>
                 ) : (
                     <View>

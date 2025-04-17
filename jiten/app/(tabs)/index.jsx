@@ -5,7 +5,7 @@ import { useNavigation } from 'expo-router';
 import { useLayoutEffect } from 'react';
 import { DrawerToggle } from '@/components/ui/DrawerToggle';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { SettingsToggle } from '@/components/ui/SettingsToggle';
 
 export default function RootLayout() {
   const {theme} = useTheme();
@@ -22,31 +22,32 @@ export default function RootLayout() {
         headerStyle: {
           backgroundColor: theme === "dark" ? "#000" : "#fff",
         },
-        headerRight: () => <DrawerToggle />, 
+        headerLeft: () => <DrawerToggle />,
+        headerRight: () =>  <SettingsToggle/>,
       });
     }, [navigation, theme]);
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
-      <View style={styles.settings}>
-        <TouchableOpacity
-        onPress={() => router.push("/settings")}>
-          <Ionicons name="settings-outline" size={32} color={isDark ? '#fff' : '#000'}/>
-        </TouchableOpacity>
-      </View>
       <View style={styles.mainItems}>
-        <TouchableOpacity
+        <View style={styles.touchableWrapper}>
+        <TouchableOpacity style={styles.touchables}
         onPress={() => router.push("/(tabs)/(mainTabs)")}>
-          <ThemedText>Words</ThemedText>
+          <ThemedText type="title">Words</ThemedText>
         </TouchableOpacity>
-        <TouchableOpacity
+        </View>
+        <View style={styles.touchableWrapper}>
+        <TouchableOpacity style={styles.touchables}
         onPress={() => router.push("/(tabs)/(mainTabs)/kanjiScreen")}>
-          <ThemedText>Kanji</ThemedText>
+          <ThemedText type="title">Kanji</ThemedText>
         </TouchableOpacity>
-        <TouchableOpacity
+        </View>
+        <View style={styles.touchableWrapper}>
+        <TouchableOpacity style={styles.touchables}
         onPress={() => router.push("/(tabs)/(mainTabs)/ocrScreen")}>
-          <ThemedText>Text Analyzer</ThemedText>
+          <ThemedText type="title">Text Analyzer</ThemedText>
         </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -56,11 +57,25 @@ const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
   },
-  settings: {
-    alignItems: "flex-end",
-  },
   mainItems: {
-    justifyContent: "center",
+    flex: 1,
+    justifyContent: "flex-start",
     alignItems: "center"
+  },
+  touchableWrapper: {
+    width: "100%",
+    paddingVertical: 10,
+    paddingHorizontal: 6
+  },
+  touchables: {
+    width: "100%",
+    height: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: theme === 'dark' ? '#3d3e3b' : '#fff',
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: theme === 'dark' ? 'rgba(220, 220, 220, 1)' : 'rgba(0,0,0,1)',
   }
+
 });

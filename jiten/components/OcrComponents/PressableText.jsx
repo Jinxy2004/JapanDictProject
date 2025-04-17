@@ -2,7 +2,6 @@ import { Pressable, View, StyleSheet } from "react-native";
 import OcrModal from "./OcrModal";
 import { useState} from "react";
 import { useSQLiteContext } from "expo-sqlite";
-const wanakana = require('wanakana');
 import { useTheme } from "../ThemeContext";
 import { ThemedText } from "../ThemedText";
 

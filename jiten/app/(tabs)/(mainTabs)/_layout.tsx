@@ -4,6 +4,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs } from "expo-router";
 import { useTheme } from "@/components/ThemeContext";
 import { View } from "react-native";
+import { SettingsToggle } from "@/components/ui/SettingsToggle";
 
 export default function TabLayout() {
   const { theme } = useTheme();
@@ -36,7 +37,8 @@ export default function TabLayout() {
           name="wordSearch"
           options={{
             title: "Word Search",
-            headerRight: () => <DrawerToggle />,
+            headerLeft: () => <DrawerToggle />,
+            headerRight: () => <SettingsToggle />,
             tabBarIcon: ({ color }) => (
               <View
                 style={{
@@ -55,7 +57,8 @@ export default function TabLayout() {
           name="kanjiScreen"
           options={{
             title: "Kanji Search",
-            headerRight: () => <DrawerToggle />,
+            headerLeft: () => <DrawerToggle />,
+            headerRight: () => <SettingsToggle />,
             tabBarIcon: ({ color }) => (
               <View
                 style={{
@@ -74,7 +77,8 @@ export default function TabLayout() {
           name="ocrScreen"
           options={{
             title: "OCR Model",
-            headerRight: () => <DrawerToggle />,
+            headerLeft: () => <DrawerToggle />,
+            headerRight: () => <SettingsToggle />,
             tabBarIcon: ({ color }) => (
               <FontAwesome size={24} name="camera" color={color} />
             ),

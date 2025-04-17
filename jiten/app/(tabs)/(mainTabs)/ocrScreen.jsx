@@ -11,6 +11,7 @@ import PressableText from '@/components/OcrComponents/PressableText';
 import kuromoji from "@charlescoeder/react-native-kuromoji";
 import { Asset } from 'expo-asset';
 import { useTheme } from '@/components/ThemeContext';
+import { InteractionManager } from 'react-native';
 
 export default function Tab() {
   const {theme} = useTheme();
@@ -75,7 +76,9 @@ export default function Tab() {
     }
   };
 
+
   useEffect(() => {
+    async function loadTokenizer() {
     const assets = {
       "base.dat.gz": Asset.fromModule(
       require("../../../assets/dict/base.dat.gz")
@@ -109,15 +112,19 @@ export default function Tab() {
       ),
     };
     setTokenizerLoading(true);
-    kuromoji.builder({ assets }).build((err, tokenizer) => {
-      if (err) {
-        console.error("Kuromoji initialization error:", err);
-        return;
-      }
-      tokenizerRef.current = tokenizer; 
-      setTokenizerLoading(false);
+    InteractionManager.runAfterInteractions(() => {
+      kuromoji.builder({ assets }).build((err, tokenizer) => {
+        if (err) {
+          console.error("Kuromoji initialization error:", err);
+          setTokenizerLoading(false);
+          return;
+        }
+        tokenizerRef.current = tokenizer;
+        setTokenizerLoading(false);
+      });
     });
-
+  }
+    loadTokenizer()
     // Cleanup on unmount
     return () => {
       if (tokenizerRef.current) {

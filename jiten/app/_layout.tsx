@@ -4,7 +4,6 @@ import { SQLiteProvider } from "expo-sqlite";
 import { CustomDrawerContent } from "../components/ui/CustomDrawer";
 import { Drawer } from "expo-router/drawer";
 import { useTheme } from "@/components/ThemeContext";
-import { Stack } from "expo-router";
 
 export default function Layout() {
   return (
@@ -46,7 +45,7 @@ export function InnerLayout() {
             },
             headerShown: false,
             drawerType: "front",
-            drawerPosition: "right",
+            drawerPosition: "left",
           }}
           drawerContent={(props) => <CustomDrawerContent {...props} />}
         />

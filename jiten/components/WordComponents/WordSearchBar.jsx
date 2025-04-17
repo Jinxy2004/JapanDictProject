@@ -3,7 +3,7 @@ import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text} from 'react
 import { searchByReadingElement, searchByGloss, serachByKanjiElement, fetchEntryDetails, checkDB } from '../../util/searchWordDictionary.js';
 import { ScrollView, GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSQLiteContext } from "expo-sqlite";
-import KanjiSearchDisplayCard from "./WordSearchDisplayCard.jsx";
+import WordSearchDisplayCard from "./WordSearchDisplayCard.jsx";
 import { useTheme } from "../ThemeContext";
 const debounce = require('debounce');
 const wanakana = require('wanakana');
@@ -131,7 +131,7 @@ const WordSearchBar = () => {
             contentContainerStyle={{paddingBottom: 16}}
             showsVerticalScrollIndicator={false}>
               {searchResults.map((word,index) => (
-                <KanjiSearchDisplayCard 
+                <WordSearchDisplayCard 
                   key={index}
                   kanji_elements={word.kanji_elements}
                   reading_elements={word.reading_elements}
