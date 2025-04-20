@@ -28,7 +28,27 @@ export default function RootLayout() {
     }, [navigation, theme]);
 
   return (
+    
     <View style={[styles.container, { backgroundColor: isDark ? '#000000' : '#ffffff' }]}>
+      <View style={{ height: 1, backgroundColor: theme === 'dark' ? '#444' : '#ccc', width: '100%' }} />
+      <View style={styles.aboutUs}>
+        <View style={{paddingBottom: 6}}>
+        <ThemedText type="title">
+            About the app
+        </ThemedText>
+        </View>
+        <ThemedText>
+            This app is designed and developed as project for school. 
+            It's purpose is to allow users to search for Japanese words/kanji using multiple forms of input,
+            or use OCR to scan Japanese text from images and analyze it. 
+            The word/kanji section allows you to search via Japanese input, English input, or 
+            romanized Japanese input. The lists are also sorted for the closest match to show up first.
+            Lastly, the text analyzer(OCR) is what allows you to scan text from images. 
+            Within it you can click on the words after scanning the text and bring up a short list 
+            of information about them or click to a full word page displaying info about them. Loading times
+            may be slow for this as of now, and will be updated in the future.
+        </ThemedText>
+      </View>
       <View style={styles.mainItems}>
         <View style={styles.touchableWrapper}>
         <TouchableOpacity style={styles.touchables}
@@ -48,6 +68,7 @@ export default function RootLayout() {
           <ThemedText type="title">Text Analyzer</ThemedText>
         </TouchableOpacity>
         </View>
+
       </View>
     </View>
   );
@@ -62,6 +83,13 @@ const getStyles = (theme) => StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center"
   },
+  aboutUs: {
+    flex: 1,
+    justifyContent: "flex-start",
+    alignItems: "center",
+    paddingTop: 16,
+    paddingBottom: 8
+  },
   touchableWrapper: {
     width: "100%",
     paddingVertical: 10,
@@ -69,7 +97,7 @@ const getStyles = (theme) => StyleSheet.create({
   },
   touchables: {
     width: "100%",
-    height: 100,
+    height: 90,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: theme === 'dark' ? '#3d3e3b' : '#fff',

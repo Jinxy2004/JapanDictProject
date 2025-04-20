@@ -7,9 +7,16 @@ export default function WordInfoDisplayScreen() {
   const params = useLocalSearchParams();
 
   // Parse the JSON strings back into arrays
-  const kanji_elements = JSON.parse(params.kanji_elements);
-  const reading_elements = JSON.parse(params.reading_elements);
-  const senses = JSON.parse(params.senses);
+  let kanji_elements;
+  let reading_elements;
+  let senses;
+  try {
+     kanji_elements = JSON.parse(params.kanji_elements);
+     reading_elements = JSON.parse(params.reading_elements);
+     senses = JSON.parse(params.senses);
+  } catch(error) {
+    console.error("Error in wordInfoDisplay parsing: ", error);
+  }
 
   return (
       <View style={styles.container}>

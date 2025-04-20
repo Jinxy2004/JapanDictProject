@@ -73,11 +73,30 @@ const WordSearchBar = () => {
     return highScore;
   }
 
+  const scoreGlossByReadingEle = (reading_elements,searchWord) => {
+    console.log(searchWord);
+    let highScore = -1;
+    reading_elements.forEach(term => {
+      if(searchWord === term) {
+        highScore = Infinity;
+        return;
+      }
+
+      if(term.includes(searchWord)) {
+        const score = term.length / searchWord.length;
+        if(score > highScore) highScore = score;
+      }
+    })
+    return highScore;
+  }
+
   // Sorts gloss results
   const sortResultsByClosestGlossMatch = (results, searchTerm) => {
     if (!searchTerm || !results.length) return results;
     
+    if(!wanakana.isJapanese(wanakana.toKana(searchTerm)) && !wanakana.isJapanese(searchTerm)) {
     return [...results].sort((a, b) => {
+      console.log("Calculating in first");
       // Extract all glosses from senses (flattened)
       const glossesA = a.senses.flatMap(sense => sense.gloss || []);
       const glossesB = b.senses.flatMap(sense => sense.gloss || []);
@@ -90,6 +109,24 @@ const WordSearchBar = () => {
       // Higher score = closer match = comes first
       return scoreB - scoreA;
     });
+    } else {
+      return [...results].sort((a, b) => {
+        console.log("Calculating in second");
+        // Extract all glosses from senses (flattened)
+        
+        const rInfoA = a.reading_elements.flatMap(rInfo => rInfo.word_reading || []);
+        const rInfoB = b.reading_elements.flatMap(rInfo => rInfo.word_reading || []);
+        
+    
+        // Calculate scores
+
+        const scoreA = scoreGlossByReadingEle(rInfoA, wanakana.toHiragana(searchTerm));
+        const scoreB = scoreGlossByReadingEle(rInfoB, wanakana.toHiragana(searchTerm));
+       // console.log("Word is: ", searchTerm, "Score A is: ", scoreA, " Score B is: ", scoreB);
+        // Higher score = closer match = comes first
+        return scoreB - scoreA;
+      });
+    }
   };
   
   const handleInputChange = (text) => {
