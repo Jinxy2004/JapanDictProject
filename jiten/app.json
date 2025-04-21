@@ -35,7 +35,13 @@
         }
       ],
       "expo-sqlite",
-      "expo-font"
+      [
+      "expo-font", 
+      {
+        "fonts": ["./assets/fonts/KleeOne-Regular.ttf",
+      "./assets//fonts/MochiyPopOne-Regular.ttf"]
+      }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

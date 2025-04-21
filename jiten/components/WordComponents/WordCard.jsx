@@ -1,8 +1,12 @@
-import React from "react";
-import { View, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTheme } from "../ThemeContext";
 import { ThemedText } from "../ThemedText";
 import { ScrollView, GestureHandlerRootView } from "react-native-gesture-handler";
+import { searchByKanji, returnKanjiDetailsByID } from "@/util/searchKanjiDictionary";
+import KanjiSearchDisplayCard from "../KanjiComponents/KanjiSearchDisplayCard";
+import { useSQLiteContext } from "expo-sqlite";
+const wanakana = require('wanakana');
 
 const WordCard = ({
   // takes in values and nulls out for fallback
@@ -10,8 +14,11 @@ const WordCard = ({
   reading_elements = [],
   senses = []
 }) => {
+  const db = useSQLiteContext();
    const{theme} = useTheme();
    const styles = getStyles(theme);
+   const[kanji,setKanji] = useState([])
+   const[searchResults,setSearchResults] = useState([])
   
   // Formats the dict references as they are objects within objects and need to be reformatted.
 
@@ -79,6 +86,40 @@ const WordCard = ({
   function kanjiPriExists(ele) {
     return ele.kanji_priority.length > 0;
   }
+
+  useEffect(() => {
+    function getTokenizedKanji() {
+      const allKanji = kanji_elements
+        .map(val => val.keb_element)
+        .join('')
+        .split('')
+        .filter(char => wanakana.isKanji(char));
+      
+      return [...new Set(allKanji)];
+    }
+    setKanji(getTokenizedKanji());
+  },[kanji_elements]);
+
+  useEffect(() => {
+    const getKanjiResults = async () => {
+      try {
+        const kanjiPromises = kanji.map(singleKanji => 
+          searchByKanji(singleKanji,db)
+        )
+      const kanjiIds = await Promise.all(kanjiPromises);
+      const allKanjiIds = kanjiIds.flat()
+      const kanjiInfo = await returnKanjiDetailsByID(allKanjiIds,db);
+      setSearchResults(kanjiInfo);
+      } catch(error) {
+        console.error('Error searching for kanji in word card',error);
+        setSearchResults([])
+      }
+    }
+    if(kanji.length > 0) {
+      getKanjiResults();
+    }
+  },[kanji]);
+
   
 
 
@@ -193,6 +234,25 @@ const WordCard = ({
                 {senses[0].parts_of_speech.join(", ")}
               </ThemedText>
             )}
+          </View>
+          <View style={styles.lineHeader}>
+            <ThemedText type="defaultSemiBold">Kanji used</ThemedText>
+          </View> 
+          <View>
+          {searchResults.map((kanji,index) => (
+                <KanjiSearchDisplayCard 
+                  key={index}
+                  kanji={kanji.k_literal}
+                  radical_num={kanji.radical_num}
+                  grade_learned={kanji.grade_learned}
+                  stroke_count={kanji.stroke_count}
+                  app_frequency={kanji.app_frequency}
+                  kanji_meanings={kanji.kanji_meanings}
+                  ony_readings={kanji.ony_readings}
+                  kun_readings={kanji.kun_readings}
+                  dict_references={kanji.dict_references}
+                />
+              ))}
           </View>
         </ScrollView>
       </View>

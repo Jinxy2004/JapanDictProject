@@ -6,6 +6,7 @@ const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
   const systemColorScheme = Appearance.getColorScheme();
   const [theme, setTheme] = useState(systemColorScheme || "light");
+  const [font, setFont] = useState('System');
   const [isManual, setIsManual] = useState(false);
 
   useEffect(() => {
@@ -23,7 +24,7 @@ export const ThemeProvider = ({ children }) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, font, setFont }}>
       {children}
     </ThemeContext.Provider>
   );

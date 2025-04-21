@@ -1,5 +1,7 @@
 import { Text, type TextProps, StyleSheet } from "react-native";
-import { useTheme } from "@/components/ThemeContext"; // Importing useTheme from your ThemeContext
+import { useTheme } from "@/components/ThemeContext";
+import * as Font from "expo-font";
+import { useEffect, useState } from "react";
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
@@ -14,14 +16,36 @@ export function ThemedText({
   type = "default",
   ...rest
 }: ThemedTextProps) {
-  const { theme } = useTheme(); // Using the theme from context
-  const isDark = theme === "dark"; // Check if the theme is dark
-  const color = isDark ? darkColor || "#ffffff" : lightColor || "#000000"; // Set color based on theme
+  const { theme, font } = useTheme();
+  const isDark = theme === "dark";
+  const color = isDark ? darkColor || "#ffffff" : lightColor || "#000000";
+  const [fontLoaded, setFontLoaded] = useState(false);
+
+  useEffect(() => {
+    async function loadFont() {
+      try {
+        await Font.loadAsync({
+          "KleeOne-Regular": require("../assets/fonts/KleeOne-Regular.ttf"),
+          "MochiyPopOne-Regular": require("../assets/fonts/MochiyPopOne-Regular.ttf"),
+        });
+        setFontLoaded(true);
+      } catch (error) {
+        console.error("Error loading fonts:", error);
+      }
+    }
+    loadFont();
+  }, []);
+
+  const getFontFamily = () => {
+    if (!fontLoaded) return undefined;
+    return font || "System";
+  };
 
   return (
     <Text
       style={[
-        { color }, // Apply the dynamic color
+        { color },
+        { fontFamily: getFontFamily() },
         type === "default" ? styles.default : undefined,
         type === "title" ? styles.title : undefined,
         type === "defaultSemiBold" ? styles.defaultSemiBold : undefined,
@@ -36,11 +60,11 @@ export function ThemedText({
 
 const styles = StyleSheet.create({
   default: {
-    fontSize: 16,
+    fontSize: 18,
     lineHeight: 24,
   },
   defaultSemiBold: {
-    fontSize: 16,
+    fontSize: 18,
     lineHeight: 24,
     fontWeight: "600",
   },

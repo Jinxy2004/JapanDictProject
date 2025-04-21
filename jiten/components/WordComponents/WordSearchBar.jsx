@@ -23,6 +23,7 @@ const WordSearchBar = () => {
       const searchedTerms = await db.getAllAsync('SELECT date_searched, recent_search FROM user_recent_searches', [])
       setUserTerms(searchedTerms);
     }
+    loadSearchList();
 
     const debouncedSearch = useCallback(
     debounce(async (text) => {
