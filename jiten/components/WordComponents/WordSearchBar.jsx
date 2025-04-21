@@ -1,10 +1,11 @@
-import React, { useCallback, useState } from "react";
-import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text} from 'react-native';
+import React, { useCallback, useState, useEffect } from "react";
+import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text, Touchable, Pressable} from 'react-native';
 import { searchByReadingElement, searchByGloss, serachByKanjiElement, fetchEntryDetails, checkDB } from '../../util/searchWordDictionary.js';
 import { ScrollView, GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSQLiteContext } from "expo-sqlite";
 import WordSearchDisplayCard from "./WordSearchDisplayCard.jsx";
 import { useTheme } from "../ThemeContext";
+import { ThemedText } from "../ThemedText";
 const debounce = require('debounce');
 const wanakana = require('wanakana');
 
@@ -14,13 +15,20 @@ const WordSearchBar = () => {
   // value is a function that lets you update the current value and re-render
     const[searchText, setSearchText] = useState('') // This stores the input values
     const[searchResults, setSearchResults] = useState([]) // This stores the resulting array of searches
+    const[userTerms, setUserTerms] = useState([])
     const {theme} = useTheme();
     const styles = getStyles(theme)
+
+    const loadSearchList = async () => {
+      const searchedTerms = await db.getAllAsync('SELECT date_searched, recent_search FROM user_recent_searches', [])
+      setUserTerms(searchedTerms);
+    }
 
     const debouncedSearch = useCallback(
     debounce(async (text) => {
       let results = "";
         try {
+
           const startTime = performance.now();
           console.log("Current input is: ",text)
           if(!wanakana.isJapanese(text) && !wanakana.isJapanese(wanakana.toHiragana(text))) {
@@ -74,7 +82,6 @@ const WordSearchBar = () => {
   }
 
   const scoreGlossByReadingEle = (reading_elements,searchWord) => {
-    console.log(searchWord);
     let highScore = -1;
     reading_elements.forEach(term => {
       if(searchWord === term) {
@@ -96,7 +103,6 @@ const WordSearchBar = () => {
     
     if(!wanakana.isJapanese(wanakana.toKana(searchTerm)) && !wanakana.isJapanese(searchTerm)) {
     return [...results].sort((a, b) => {
-      console.log("Calculating in first");
       // Extract all glosses from senses (flattened)
       const glossesA = a.senses.flatMap(sense => sense.gloss || []);
       const glossesB = b.senses.flatMap(sense => sense.gloss || []);
@@ -111,7 +117,6 @@ const WordSearchBar = () => {
     });
     } else {
       return [...results].sort((a, b) => {
-        console.log("Calculating in second");
         // Extract all glosses from senses (flattened)
         
         const rInfoA = a.reading_elements.flatMap(rInfo => rInfo.word_reading || []);
@@ -132,6 +137,7 @@ const WordSearchBar = () => {
   const handleInputChange = (text) => {
     if(text === '') {
       setSearchResults([]);
+      loadSearchList();
     } else {
       setSearchText(text);
       debouncedSearch(text);
@@ -140,7 +146,54 @@ const WordSearchBar = () => {
 
   const handleClear = () => {
     setSearchText('');
+    loadSearchList();
     setSearchResults([]);
+  }
+
+  const handleSubmit = async () => {
+    if(searchText) {
+      try {
+
+          const dbStatus = await db.getAllAsync('PRAGMA query_only;')
+          const isLocked = dbStatus[0]?.['query_only'] === 1
+
+          if(isLocked) {
+            console.warn('Database is locked, waiting... ');
+            await new Promise(resolve => setTimeout(resolve, 100))
+          }
+
+          const timeString = formatDateTime();
+
+          await db.runAsync('BEGIN TRANSACTION');
+
+          const query = `
+          INSERT INTO user_recent_searches(recent_search,date_searched)
+          VALUES (?,?);
+          `
+          await db.runAsync(query, [searchText,timeString]);
+          await db.runAsync('COMMIT');
+
+      } catch (error) {
+        await db.runAsync('ROLLBACK');
+        console.error("Error inserting recent search",error)
+      }
+    }
+  }
+
+  const formatDateTime = () => {
+    const now = new Date()
+    const hours = now.getHours();
+    const amORpm = hours >= 12 ? 'PM' : 'AM';
+    const twelveHour = hours % 12 || 12;
+    const minutes = now.getMinutes();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    return `${month}/${day} ${twelveHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}${amORpm} `;
+  }
+
+  const onRecentPress = (searchTerm) => {
+    setSearchText(searchTerm)
+    debouncedSearch(searchTerm)
   }
 
     return (
@@ -156,6 +209,8 @@ const WordSearchBar = () => {
                 value={searchText}
                 autoCorrect={false}
                 onChangeText={handleInputChange} // Uses the debounce handler
+                enterKeyHint="search"
+                onSubmitEditing={handleSubmit}
               />
               {searchText.length > 0 && (
                 <TouchableOpacity onPress={handleClear} style={styles.clearButton}>
@@ -164,6 +219,7 @@ const WordSearchBar = () => {
               )}
             </View>
             {/*Displays search results via a series of calls*/}
+            {searchText !== '' && (
             <ScrollView style={styles.scrollView}
             contentContainerStyle={{paddingBottom: 16}}
             showsVerticalScrollIndicator={false}>
@@ -176,6 +232,29 @@ const WordSearchBar = () => {
                 />
               ))}
             </ScrollView>
+            )}
+            {searchText === '' && (
+              <ScrollView style={styles.scrollView}>
+                {userTerms.map((line,index) => (  
+                  <View key={index} style={styles.recentsContainer}>
+                    <Pressable
+                    style={({ pressed }) => [
+                      styles.pressables,
+                      pressed && styles.pressedItem
+                    ]}
+                    onPress={(() => onRecentPress(line.recent_search))}
+                  >
+                    <ThemedText>
+                      {line.recent_search} 
+                    </ThemedText>
+                    <ThemedText>
+                      {line.date_searched}
+                    </ThemedText>
+                    </Pressable>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
           </View>
         </GestureHandlerRootView>
     );
@@ -191,6 +270,27 @@ const getStyles = (theme) => StyleSheet.create({
       width: '100%',
       marginBottom: 16,
       backgroundColor: theme === "dark" ? '#3d3e3b' : "#ffffff",
+    },
+    recentsContainer: {
+      width: '100%',
+      marginBottom: 16,
+      backgroundColor: theme === "dark" ? '#3d3e3b' : "#ffffff",
+      borderColor: '#ccc',
+      borderWidth: 1,
+      borderRadius: 8,
+      padding: 4,
+    },
+    pressables: {
+      flex: 1,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    pressedItem: {
+      backgroundColor: theme === "dark" 
+        ? 'rgba(255, 255, 255, 0.1)' 
+        : 'rgba(0, 0, 0, 0.05)',
+      transform: [{ scale: 0.98 }],
     },
     input: {
       height: 40,
