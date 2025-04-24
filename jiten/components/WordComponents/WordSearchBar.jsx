@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from "react";
-import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text, Touchable, Pressable} from 'react-native';
+import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text, Pressable} from 'react-native';
 import { searchByReadingElement, searchByGloss, serachByKanjiElement, fetchEntryDetails, checkDB } from '../../util/searchWordDictionary.js';
 import { ScrollView, GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSQLiteContext } from "expo-sqlite";
@@ -11,6 +11,19 @@ const wanakana = require('wanakana');
 
 const WordSearchBar = () => {
   const db = useSQLiteContext();
+  // Enable WAL mode to stop DB locks
+  useEffect(() => {
+    const enableWAL = async () => {
+      try {
+        await db.runAsync('PRAGMA journal_mode = WAL;');
+        await db.runAsync('PRAGMA synchronous = NORMAL;');
+      } catch (error) {
+        console.error('Error enabling WAL mode:', error);
+      }
+    };
+    enableWAL();
+  }, []);
+
   // The value inside of useState is the initial value, the first value inside of the [] isr the current value and the second
   // value is a function that lets you update the current value and re-render
     const[searchText, setSearchText] = useState('') // This stores the input values
@@ -23,7 +36,18 @@ const WordSearchBar = () => {
       const searchedTerms = await db.getAllAsync('SELECT date_searched, recent_search FROM user_recent_searches', [])
       setUserTerms(searchedTerms);
     }
-    loadSearchList();
+    useEffect(() => {
+      const loadSearchList = async () => {
+        try {
+        const searchedTerms = await db.getAllAsync('SELECT date_searched, recent_search FROM user_recent_searches', [])
+        setUserTerms(searchedTerms);
+        } catch (error) {
+          console.error("Error loading search list: ", error)
+        }
+      }
+
+      loadSearchList();
+    },[])
 
     const debouncedSearch = useCallback(
     debounce(async (text) => {
@@ -152,34 +176,25 @@ const WordSearchBar = () => {
   }
 
   const handleSubmit = async () => {
-    if(searchText) {
-      try {
-
-          const dbStatus = await db.getAllAsync('PRAGMA query_only;')
-          const isLocked = dbStatus[0]?.['query_only'] === 1
-
-          if(isLocked) {
-            console.warn('Database is locked, waiting... ');
-            await new Promise(resolve => setTimeout(resolve, 100))
-          }
-
-          const timeString = formatDateTime();
-
-          await db.runAsync('BEGIN TRANSACTION');
-
-          const query = `
-          INSERT INTO user_recent_searches(recent_search,date_searched)
-          VALUES (?,?);
-          `
-          await db.runAsync(query, [searchText,timeString]);
-          await db.runAsync('COMMIT');
-
-      } catch (error) {
-        await db.runAsync('ROLLBACK');
-        console.error("Error inserting recent search",error)
-      }
+    if (!searchText) return;
+    
+    try {
+      const timeString = formatDateTime();
+      await db.runAsync('BEGIN IMMEDIATE TRANSACTION');
+      
+      await db.runAsync(
+        'INSERT INTO user_recent_searches(recent_search,date_searched) VALUES (?,?)',
+        [searchText, timeString]
+      );
+      
+      await db.runAsync('COMMIT');
+      await loadSearchList(); // Refresh the list after successful insert
+      
+    } catch (error) {
+      console.error('Error inserting recent search:', error);
+      await db.runAsync('ROLLBACK');
     }
-  }
+  };
 
   const formatDateTime = () => {
     const now = new Date()
