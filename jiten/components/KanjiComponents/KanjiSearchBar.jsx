@@ -1,10 +1,11 @@
-import React, { useCallback, useState } from "react";
-import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text} from 'react-native';
+import React, { useCallback, useState, useEffect} from "react";
+import { View, TextInput, Alert, StyleSheet, TouchableOpacity, Text, Pressable} from 'react-native';
 import { searchByMeaning, searchByReading, returnKanjiDetailsByID, searchByKanji } from '../../util/searchKanjiDictionary.js';
 import { ScrollView, GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSQLiteContext } from "expo-sqlite";
 import KanjiSearchDisplayCard from "./KanjiSearchDisplayCard.jsx";
 import { useTheme } from "../ThemeContext";
+import { ThemedText } from "../ThemedText";
 const debounce = require('debounce');
 const wanakana = require('wanakana');
 
@@ -15,56 +16,36 @@ const KanjiSearchBar = () => {
     const[searchText, setSearchText] = useState('') // This stores the input values
     const[searchResults, setSearchResults] = useState([]) // This stores the resulting array of searches
     const{theme} = useTheme();
+    const[userTerms, setUserTerms] = useState([]);
+    const styles = getStyles(theme);
 
-    const styles = StyleSheet.create({
-      container: {
-        flex: 1,
-        width: '100%',
-        padding: 16,
-      },
-      searchContainer: {
-        width: '100%',
-        marginBottom: 16,
-        backgroundColor: theme === "dark" ? '#3d3e3b' : "#ffffff",
-      },
-      input: {
-        height: 40,
-        width: '100%',
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 10,
-      },
-      scrollView: {
-        flex: 1,
-        width: '100%',
-      },
-      button: {
-        backgroundColor: '#007BFF',
-        padding: 10,
-        borderRadius: 8,
-        alignItems: 'center',
-      },
-      buttonText: {
-        color: '#fff',
-        fontSize: 16,
-      },
-      clearButton: {
-        position: 'absolute', 
-        right: 10, 
-        top: 8, 
-        backgroundColor: '#ccc',
-        borderRadius: 12,
-        width: 24,
-        height: 24,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      clearButtonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-      },
-  });
+    const loadSearchList = async () => {
+      try {
+      const searchedTerms = await db.getAllAsync('SELECT date_searched, recent_search FROM user_recent_kanji_searches', [])
+      setUserTerms(searchedTerms);
+      } catch (error) {
+        console.error("Error loading search list: ", error)
+      }
+    }
+    // Init user searches on startup
+     useEffect(() => {
+          loadSearchList();
+        },[])
+
+     // Enable WAL mode to stop DB locks
+      useEffect(() => {
+        const enableWAL = async () => {
+          try {
+            await db.runAsync('PRAGMA journal_mode = WAL;');
+            await db.runAsync('PRAGMA synchronous = NORMAL;');
+          } catch (error) {
+            console.error('Error enabling WAL mode:', error);
+          }
+        };
+        enableWAL();
+      }, []);
+
+    
   
     const debouncedSearch = useCallback(
     debounce(async (text) => {
@@ -113,6 +94,43 @@ const KanjiSearchBar = () => {
     setSearchResults([]);
   }
 
+  const handleSubmit = async () => {
+    if (!searchText) return;
+    
+    try {
+      const timeString = formatDateTime();
+      await db.runAsync('BEGIN IMMEDIATE TRANSACTION');
+      
+      await db.runAsync(
+        'INSERT INTO user_recent_kanji_searches(recent_search,date_searched) VALUES (?,?)',
+        [searchText, timeString]
+      );
+      
+      await db.runAsync('COMMIT');
+      await loadSearchList(); // Refresh the list after successful insert
+      
+    } catch (error) {
+      console.error('Error inserting recent search:', error);
+      await db.runAsync('ROLLBACK');
+    }
+  };
+
+  const formatDateTime = () => {
+    const now = new Date()
+    const hours = now.getHours();
+    const amORpm = hours >= 12 ? 'PM' : 'AM';
+    const twelveHour = hours % 12 || 12;
+    const minutes = now.getMinutes();
+    const month = now.getMonth() + 1;
+    const day = now.getDate();
+    return `${month}/${day} ${twelveHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}${amORpm} `;
+  }
+
+  const onRecentPress = (searchTerm) => {
+    setSearchText(searchTerm)
+    debouncedSearch(searchTerm)
+  }
+
     return (
         <GestureHandlerRootView style={{ flex: 1, width: '100%' }}>
           <View style={{ height: 1, backgroundColor: theme === 'dark' ? '#444' : '#ccc', width: '100%' }} />
@@ -126,6 +144,8 @@ const KanjiSearchBar = () => {
                 value={searchText}
                 autoCorrect={false}
                 onChangeText={handleInputChange} // Uses the debounce handler
+                enterKeyHint="search"
+                onSubmitEditing={handleSubmit}
               />
               {searchText.length > 0 && (
                 <TouchableOpacity onPress={handleClear} style={styles.clearButton}>
@@ -134,6 +154,7 @@ const KanjiSearchBar = () => {
               )}
             </View>
             {/*Displays search results via a series of calls*/}
+            {searchText !== '' && (
             <ScrollView style={styles.scrollView}
             contentContainerStyle={{paddingBottom: 16}}
             showsVerticalScrollIndicator={false}>
@@ -152,10 +173,103 @@ const KanjiSearchBar = () => {
                 />
               ))}
             </ScrollView>
+            )}
+            {searchText === '' && (
+              <ScrollView style={styles.scrollView}>
+                {userTerms.map((line,index) => (  
+                  <View key={index} style={styles.recentsContainer}>
+                    <Pressable
+                    style={({ pressed }) => [
+                      styles.pressables,
+                      pressed && styles.pressedItem
+                    ]}
+                    onPress={(() => onRecentPress(line.recent_search))}
+                  >
+                    <ThemedText>
+                      {line.recent_search} 
+                    </ThemedText>
+                    <ThemedText>
+                      {line.date_searched}
+                    </ThemedText>
+                    </Pressable>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
           </View>
         </GestureHandlerRootView>
     );
 };
 
+const getStyles = (theme) => StyleSheet.create({
+  container: {
+    flex: 1,
+    width: '100%',
+    padding: 16,
+  },
+  searchContainer: {
+    width: '100%',
+    marginBottom: 16,
+    backgroundColor: theme === "dark" ? '#3d3e3b' : "#ffffff",
+  },
+  input: {
+    height: 40,
+    width: '100%',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+  },
+  scrollView: {
+    flex: 1,
+    width: '100%',
+  },
+  button: {
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  recentsContainer: {
+    width: '100%',
+    marginBottom: 16,
+    backgroundColor: theme === "dark" ? '#3d3e3b' : "#ffffff",
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 4,
+  },
+  pressables: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  pressedItem: {
+    backgroundColor: theme === "dark" 
+      ? 'rgba(255, 255, 255, 0.1)' 
+      : 'rgba(0, 0, 0, 0.05)',
+    transform: [{ scale: 0.98 }],
+  },
+  clearButton: {
+    position: 'absolute', 
+    right: 10, 
+    top: 8, 
+    backgroundColor: '#ccc',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  clearButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+});
   
   export default KanjiSearchBar;

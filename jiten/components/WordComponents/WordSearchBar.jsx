@@ -26,26 +26,21 @@ const WordSearchBar = () => {
 
   // The value inside of useState is the initial value, the first value inside of the [] isr the current value and the second
   // value is a function that lets you update the current value and re-render
-    const[searchText, setSearchText] = useState('') // This stores the input values
-    const[searchResults, setSearchResults] = useState([]) // This stores the resulting array of searches
-    const[userTerms, setUserTerms] = useState([])
+    const[searchText, setSearchText] = useState(''); // This stores the input values
+    const[searchResults, setSearchResults] = useState([]); // This stores the resulting array of searches
+    const[userTerms, setUserTerms] = useState([]);
     const {theme} = useTheme();
-    const styles = getStyles(theme)
+    const styles = getStyles(theme);
 
     const loadSearchList = async () => {
+      try {
       const searchedTerms = await db.getAllAsync('SELECT date_searched, recent_search FROM user_recent_searches', [])
       setUserTerms(searchedTerms);
+      } catch (error) {
+        console.error("Error loading search list: ", error)
+      }
     }
     useEffect(() => {
-      const loadSearchList = async () => {
-        try {
-        const searchedTerms = await db.getAllAsync('SELECT date_searched, recent_search FROM user_recent_searches', [])
-        setUserTerms(searchedTerms);
-        } catch (error) {
-          console.error("Error loading search list: ", error)
-        }
-      }
-
       loadSearchList();
     },[])
 
@@ -108,7 +103,24 @@ const WordSearchBar = () => {
 
   const scoreGlossByReadingEle = (reading_elements,searchWord) => {
     let highScore = -1;
+    console.log(wanakana.toHiragana(searchWord));
     reading_elements.forEach(term => {
+      if(searchWord === term) {
+        highScore = Infinity;
+        return;
+      }
+
+      if(term.includes(searchWord)) {
+        const score = term.length / searchWord.length;
+        if(score > highScore) highScore = score;
+      }
+    })
+    return highScore;
+  }
+
+  const scoreGlossByKanjiEle = (kanji_elements,searchWord) => {
+    let highScore = -1;
+    kanji_elements.forEach(term => {
       if(searchWord === term) {
         highScore = Infinity;
         return;
@@ -125,6 +137,12 @@ const WordSearchBar = () => {
   // Sorts gloss results
   const sortResultsByClosestGlossMatch = (results, searchTerm) => {
     if (!searchTerm || !results.length) return results;
+
+    let isKanji = false;
+    const tokenizedItems = wanakana.tokenize(searchTerm);
+    tokenizedItems.forEach((curValue) => {
+      if(wanakana.isKanji(curValue)) isKanji = true;
+    })
     
     if(!wanakana.isJapanese(wanakana.toKana(searchTerm)) && !wanakana.isJapanese(searchTerm)) {
     return [...results].sort((a, b) => {
@@ -140,7 +158,7 @@ const WordSearchBar = () => {
       // Higher score = closer match = comes first
       return scoreB - scoreA;
     });
-    } else {
+    } else if (!isKanji) {
       return [...results].sort((a, b) => {
         // Extract all glosses from senses (flattened)
         
@@ -152,6 +170,21 @@ const WordSearchBar = () => {
 
         const scoreA = scoreGlossByReadingEle(rInfoA, wanakana.toHiragana(searchTerm));
         const scoreB = scoreGlossByReadingEle(rInfoB, wanakana.toHiragana(searchTerm));
+       // console.log("Word is: ", searchTerm, "Score A is: ", scoreA, " Score B is: ", scoreB);
+        // Higher score = closer match = comes first
+        return scoreB - scoreA;
+      });
+    } else {
+      return [...results].sort((a, b) => {
+        // Extract all glosses from senses (flattened)
+        const kInfoA = a.kanji_elements.flatMap(kInfo => kInfo.keb_element || []);
+        const kInfoB = b.kanji_elements.flatMap(kInfo => kInfo.keb_element || []);
+        
+    
+        // Calculate scores
+
+        const scoreA = scoreGlossByKanjiEle(kInfoA, wanakana.toHiragana(searchTerm));
+        const scoreB = scoreGlossByKanjiEle(kInfoB, wanakana.toHiragana(searchTerm));
        // console.log("Word is: ", searchTerm, "Score A is: ", scoreA, " Score B is: ", scoreB);
         // Higher score = closer match = comes first
         return scoreB - scoreA;
