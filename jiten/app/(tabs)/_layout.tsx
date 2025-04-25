@@ -14,6 +14,10 @@ export default function TabStackLayout() {
         options={{ headerShown: false, title: "Home" }}
       />
       <Stack.Screen
+        name="aboutUs"
+        options={{ headerShown: false, title: "About Us" }}
+      />
+      <Stack.Screen
         name="kanji/kanjiInfoDisplay"
         options={{
           title: "Kanji Info",

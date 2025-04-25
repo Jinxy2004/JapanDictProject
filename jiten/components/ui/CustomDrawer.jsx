@@ -29,6 +29,13 @@ export function CustomDrawerContent({ navigation }) {
       >
         <ThemedText style={styles.drawerText}>Settings</ThemedText>
       </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.drawerItem}
+        onPress={() => router.push('(tabs)/aboutUs')}
+      >
+        <ThemedText style={styles.drawerText}>About Us</ThemedText>
+      </TouchableOpacity>
     </View>
   );
 }

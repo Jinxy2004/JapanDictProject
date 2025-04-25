@@ -34,19 +34,12 @@ export default function RootLayout() {
         <View style={styles.aboutUs}>
           <View style={{paddingBottom: 6}}>
             <ThemedText type="title">
-              About the app
+              App info
             </ThemedText>
           </View>
           <ThemedText style={styles.aboutText}>
-            This app is designed and developed as project for school. 
-            It's purpose is to allow users to search for Japanese words/kanji using multiple forms of input,
-            or use OCR to scan Japanese text from images and analyze it. 
-            The word/kanji section allows you to search via Japanese input, English input, or 
-            romanized Japanese input. The lists are also sorted for the closest match to show up first.
-            Lastly, the text analyzer(OCR) is what allows you to scan text from images. 
-            Within it you can click on the words after scanning the text and bring up a short list 
-            of information about them or click to a full word page displaying info about them. Loading times
-            may be slow for this as of now, and will be updated in the future.
+            This is a Japanese dictionary app with OCR, and each of the three buttons below
+            will lead you to their respective pages.
           </ThemedText>
         </View>
         <View style={styles.mainItems}>
