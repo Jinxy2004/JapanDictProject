@@ -6,7 +6,13 @@ import { useEffect, useState } from "react";
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: "default" | "title" | "defaultSemiBold" | "subtitle" | "link";
+  type?:
+    | "default"
+    | "title"
+    | "defaultSemiBold"
+    | "subtitle"
+    | "link"
+    | "BigTitle";
 };
 
 export function ThemedText({
@@ -51,6 +57,7 @@ export function ThemedText({
         type === "defaultSemiBold" ? styles.defaultSemiBold : undefined,
         type === "subtitle" ? styles.subtitle : undefined,
         type === "link" ? styles.link : undefined,
+        type === "BigTitle" ? styles.bigTitle : undefined,
         style,
       ]}
       {...rest}
@@ -72,6 +79,10 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: "bold",
     lineHeight: 32,
+  },
+  bigTitle: {
+    fontSize: 64,
+    fontWeight: "bold",
   },
   subtitle: {
     fontSize: 20,

@@ -3,6 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { useTheme } from "../ThemeContext";
 import { ThemedText } from "../ThemedText";
 import { ScrollView, GestureHandlerRootView } from "react-native-gesture-handler";
+import { kanjiSvgs } from "./kanjiSvgs";
 
 const KanjiCard = ({
   // takes in values and nulls out for fallback
@@ -21,7 +22,13 @@ const KanjiCard = ({
 
    const{theme} = useTheme();
    const styles = getStyles(theme);
-   
+  
+   function getKanjiFileName() {
+    const codePoint = kanji.codePointAt(0);
+    const hex = codePoint.toString(16).padStart(5,'0');
+    return hex;
+   }
+   const svgComponent = kanjiSvgs[getKanjiFileName()]
   // Formats the dict references as they are objects within objects and need to be reformatted.
   const formatDictReferences = (references) => {
     return references.map((ref,index) => (
@@ -51,7 +58,11 @@ const KanjiCard = ({
       <View style={{ height: 1, backgroundColor: theme === 'dark' ? '#444' : '#ccc', width: '100%' }} />
       <View style={styles.card}>
         <ScrollView style={styles.scrollView} contentContainerStyle={{paddingBottom: 16}}>
-          <ThemedText style={styles.kanjiHeader} type="title">{kanji}</ThemedText>
+        <View style={styles.svgWrapper}>
+          <ThemedText  type="BigTitle">{kanji}</ThemedText>
+
+          {svgComponent && React.createElement(svgComponent, { width: 80, height: 80, color: theme === 'dark' ? '#fff' : '#000' })}
+          </View>
           <View style={styles.lineHeader}>
             <ThemedText type="defaultSemiBold">Main Info</ThemedText>
           </View>
@@ -97,10 +108,6 @@ const getStyles = (theme) => StyleSheet.create({
     padding: 16,
     backgroundColor: theme === "dark" ? '#000' : "#fff",
   },
-  kanjiHeader: {
-    marginTop: 16,
-    marginBottom: 16, 
-  },
   scrollView: {
     width: "100%"
   },
@@ -113,6 +120,11 @@ const getStyles = (theme) => StyleSheet.create({
     borderWidth: 1,
     justifyContent: "center",
     alignItems: "center"
+  },
+  svgWrapper: {
+    justifyContent: "flex-start",
+    alignItems: "center",
+    flexDirection: "row"
   }
 });
 
