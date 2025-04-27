@@ -32,6 +32,13 @@ export function CustomDrawerContent({ navigation }) {
 
       <TouchableOpacity 
         style={styles.drawerItem}
+        onPress={() => router.push('(tabs)/wordLists')}
+      >
+        <ThemedText style={styles.drawerText}>Word Lists</ThemedText>
+      </TouchableOpacity>
+
+      <TouchableOpacity 
+        style={styles.drawerItem}
         onPress={() => router.push('(tabs)/aboutUs')}
       >
         <ThemedText style={styles.drawerText}>About Us</ThemedText>
