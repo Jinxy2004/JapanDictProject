@@ -41,3 +41,5 @@ app-example
 
 # extra
 *.svg
+jiten/assets/word_list_jsons/
+scripts/testDB.db

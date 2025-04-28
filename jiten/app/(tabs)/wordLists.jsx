@@ -6,11 +6,13 @@ import { useTheme } from "@/components/ThemeContext";
 import { DrawerToggle } from "@/components/ui/DrawerToggle";
 import { SettingsToggle } from "@/components/ui/SettingsToggle";
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { useRouter } from "expo-router";
 
 export default function wordLists() {
     const navigation = useNavigation();
     const {theme} = useTheme();
     const styles = getStyles(theme)
+    const router = useRouter();
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -25,6 +27,10 @@ export default function wordLists() {
         });
       }, [navigation, theme]);
 
+      function handlePress(route) {
+        router.push(`/(tabs)/wordLists/${route}`)
+      }
+
     return (
     <View style={styles.container}>
      <View style={{ height: 1, backgroundColor: theme === 'dark' ? '#444' : '#ccc', width: '100%' }} />    
@@ -33,6 +39,7 @@ export default function wordLists() {
             styles.pressables,
             pressed && { backgroundColor: theme === "dark" ? "#222" : "#eee" }
           ]}
+          onPress={() => handlePress("jlptLevels")}
         >
           <AntDesign name="folder1" size={24} color={theme === 'dark' ? '#fff' : '#000'} />
           <ThemedText style={{ marginLeft: 12 }}>JLPT levels</ThemedText>
