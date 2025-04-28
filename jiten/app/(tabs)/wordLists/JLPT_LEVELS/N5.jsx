@@ -3,7 +3,7 @@ import { useLayoutEffect } from "react";
 import { useNavigation } from "expo-router";
 import { useTheme } from "@/components/ThemeContext";
 import { SettingsToggle } from "@/components/ui/SettingsToggle";
-import n1Data from "@/assets/word_list_jsons/jlpt/N1.json";
+import n5Data from "@/assets/word_list_jsons/jlpt/N5.json";
 import WordSearchDisplayCard from "@/components/WordComponents/WordSearchDisplayCard";
 import { FlatList } from "react-native";
 
@@ -16,7 +16,7 @@ export default function wordLists() {
     navigation.setOptions({
       headerShown: true,
       headerTintColor: theme === "dark" ? "#fff" : "#000",
-      title: "N1",
+      title: "N5",
       headerStyle: {
         backgroundColor: theme === "dark" ? "#000" : "#fff",
       },
@@ -34,7 +34,7 @@ export default function wordLists() {
         }}
       />
       <FlatList
-        data={n1Data}
+        data={n5Data}
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (
           <WordSearchDisplayCard

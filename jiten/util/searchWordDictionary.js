@@ -265,55 +265,58 @@ export function fetchSenses(ent_seq_array, db) {
     try {
       const ent_ids = ent_seq_array.join(',');
       const query = `
-        WITH sense_base AS (
+          WITH sense_base AS (
+            SELECT 
+              s.entries_id,
+              s.id,
+              COALESCE(GROUP_CONCAT(DISTINCT si.extra_info), '') as sense_info,
+              COALESCE(GROUP_CONCAT(DISTINCT d.dialect_info), '') as dialect,
+              COALESCE(GROUP_CONCAT(DISTINCT sk.kanjis_restricted_to), '') as stagk,
+              COALESCE(GROUP_CONCAT(DISTINCT sr.readings_restricted_to), '') as stagr,
+              COALESCE(GROUP_CONCAT(DISTINCT g.word_info), '') as gloss,
+              COALESCE(GROUP_CONCAT(DISTINCT a.ant_reference), '') as antonyms,
+              COALESCE(GROUP_CONCAT(DISTINCT pos.pos_info), '') as parts_of_speech,
+              COALESCE(GROUP_CONCAT(DISTINCT f.field_info), '') as field,
+              COALESCE(GROUP_CONCAT(DISTINCT cr.cross_reference), '') as cross_reference,
+              COALESCE(GROUP_CONCAT(DISTINCT m.misc_info), '') as misc,
+              COALESCE(GROUP_CONCAT(DISTINCT ls.l_source), '') as loanword_source,
+              COALESCE(GROUP_CONCAT(DISTINCT jlpt.jlpt_level), '') as jlpt_level
+            FROM senses s
+            LEFT JOIN sense_info si ON si.senses_id = s.id
+            LEFT JOIN dialect d ON d.senses_id = s.id
+            LEFT JOIN stagk sk ON sk.senses_id = s.id
+            LEFT JOIN stagr sr ON sr.senses_id = s.id
+            LEFT JOIN gloss g ON g.senses_id = s.id
+            LEFT JOIN antonyms a ON a.senses_id = s.id
+            LEFT JOIN parts_of_speech pos ON pos.senses_id = s.id
+            LEFT JOIN field f ON f.senses_id = s.id
+            LEFT JOIN cross_references cr ON cr.senses_id = s.id
+            LEFT JOIN misc m ON m.senses_id = s.id
+            LEFT JOIN loanword_source ls ON ls.senses_id = s.id
+            LEFT JOIN jlpt_levels jlpt ON jlpt.senses_id = s.id
+            WHERE s.entries_id IN (${ent_ids})
+            GROUP BY s.id
+          )
           SELECT 
-            s.entries_id,
-            s.id,
-            COALESCE(GROUP_CONCAT(DISTINCT si.extra_info), '') as sense_info,
-            COALESCE(GROUP_CONCAT(DISTINCT d.dialect_info), '') as dialect,
-            COALESCE(GROUP_CONCAT(DISTINCT sk.kanjis_restricted_to), '') as stagk,
-            COALESCE(GROUP_CONCAT(DISTINCT sr.readings_restricted_to), '') as stagr,
-            COALESCE(GROUP_CONCAT(DISTINCT g.word_info), '') as gloss,
-            COALESCE(GROUP_CONCAT(DISTINCT a.ant_reference), '') as antonyms,
-            COALESCE(GROUP_CONCAT(DISTINCT pos.pos_info), '') as parts_of_speech,
-            COALESCE(GROUP_CONCAT(DISTINCT f.field_info), '') as field,
-            COALESCE(GROUP_CONCAT(DISTINCT cr.cross_reference), '') as cross_reference,
-            COALESCE(GROUP_CONCAT(DISTINCT m.misc_info), '') as misc,
-            COALESCE(GROUP_CONCAT(DISTINCT ls.l_source), '') as loanword_source
-          FROM senses s
-          LEFT JOIN sense_info si ON si.senses_id = s.id
-          LEFT JOIN dialect d ON d.senses_id = s.id
-          LEFT JOIN stagk sk ON sk.senses_id = s.id
-          LEFT JOIN stagr sr ON sr.senses_id = s.id
-          LEFT JOIN gloss g ON g.senses_id = s.id
-          LEFT JOIN antonyms a ON a.senses_id = s.id
-          LEFT JOIN parts_of_speech pos ON pos.senses_id = s.id
-          LEFT JOIN field f ON f.senses_id = s.id
-          LEFT JOIN cross_references cr ON cr.senses_id = s.id
-          LEFT JOIN misc m ON m.senses_id = s.id
-          LEFT JOIN loanword_source ls ON ls.senses_id = s.id
-          WHERE s.entries_id IN (${ent_ids})
-          GROUP BY s.id
-        )
-        SELECT 
-          entries_id AS ent_seq,
-          json_object(
-            'ent_seq', entries_id,
-            'id', COALESCE(id, ''),
-            'sense_info', CASE WHEN sense_info = '' THEN json_array() ELSE json_array(sense_info) END,
-            'dialect', CASE WHEN dialect = '' THEN json_array() ELSE json_array(dialect) END,
-            'stagk', CASE WHEN stagk = '' THEN json_array() ELSE json_array(stagk) END,
-            'stagr', CASE WHEN stagr = '' THEN json_array() ELSE json_array(stagr) END,
-            'gloss', CASE WHEN gloss = '' THEN json_array() ELSE json_array(gloss) END,
-            'antonyms', CASE WHEN antonyms = '' THEN json_array() ELSE json_array(antonyms) END,
-            'parts_of_speech', CASE WHEN parts_of_speech = '' THEN json_array() ELSE json_array(parts_of_speech) END,
-            'field', CASE WHEN field = '' THEN json_array() ELSE json_array(field) END,
-            'cross_reference', CASE WHEN cross_reference = '' THEN json_array() ELSE json_array(cross_reference) END,
-            'misc', CASE WHEN misc = '' THEN json_array() ELSE json_array(misc) END,
-            'loanword_source', CASE WHEN loanword_source = '' THEN json_array() ELSE json_array(loanword_source) END
-          ) AS sense_data
-        FROM sense_base;
-      `;
+            entries_id AS ent_seq,
+            json_object(
+              'ent_seq', entries_id,
+              'id', COALESCE(id, ''),
+              'sense_info', CASE WHEN sense_info = '' THEN json_array() ELSE json_array(sense_info) END,
+              'dialect', CASE WHEN dialect = '' THEN json_array() ELSE json_array(dialect) END,
+              'stagk', CASE WHEN stagk = '' THEN json_array() ELSE json_array(stagk) END,
+              'stagr', CASE WHEN stagr = '' THEN json_array() ELSE json_array(stagr) END,
+              'gloss', CASE WHEN gloss = '' THEN json_array() ELSE json_array(gloss) END,
+              'antonyms', CASE WHEN antonyms = '' THEN json_array() ELSE json_array(antonyms) END,
+              'parts_of_speech', CASE WHEN parts_of_speech = '' THEN json_array() ELSE json_array(parts_of_speech) END,
+              'field', CASE WHEN field = '' THEN json_array() ELSE json_array(field) END,
+              'cross_reference', CASE WHEN cross_reference = '' THEN json_array() ELSE json_array(cross_reference) END,
+              'misc', CASE WHEN misc = '' THEN json_array() ELSE json_array(misc) END,
+              'loanword_source', CASE WHEN loanword_source = '' THEN json_array() ELSE json_array(loanword_source) END,
+              'jlpt_level', CASE WHEN jlpt_level = '' THEN json_array() ELSE json_array(jlpt_level) END
+            ) AS sense_data
+          FROM sense_base;
+        `;
       const rows = await db.getAllAsync(query, []);
       if (rows.length === 0) {
         resolve(null);
