@@ -12,7 +12,11 @@ import {
 } from "@/util/searchKanjiDictionary";
 import KanjiSearchDisplayCard from "../KanjiComponents/KanjiSearchDisplayCard";
 import { useSQLiteContext } from "expo-sqlite";
+import { useNavigation } from "expo-router";
+import { useLayoutEffect } from "react";
+import { SettingsToggle } from "../ui/SettingsToggle";
 const wanakana = require("wanakana");
+const codec = require("kamiya-codec");
 
 const WordCard = ({
   // takes in values and nulls out for fallback
@@ -25,6 +29,26 @@ const WordCard = ({
   const styles = getStyles(theme);
   const [kanji, setKanji] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
+  const [verbType, setVerbType] = useState("");
+  const [verbToConjugate, setVerbToConjugate] = useState(null);
+  const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: true,
+      headerTintColor: theme === "dark" ? "#fff" : "#000",
+      title: "Word Info",
+      headerStyle: {
+        backgroundColor: theme === "dark" ? "#000" : "#fff",
+      },
+      headerRight: () => <SettingsToggle />,
+    });
+  }, [navigation, theme]);
+
+  useEffect(() => {
+    const primaryKEB = kanji_elements[0]?.keb_element || "";
+    setVerbToConjugate(primaryKEB);
+  }, []);
 
   // Formats the dict references as they are objects within objects and need to be reformatted.
 
@@ -107,6 +131,7 @@ const WordCard = ({
     }
     return null;
   }
+
   useEffect(() => {
     function getTokenizedKanji() {
       const allKanji = kanji_elements
@@ -139,6 +164,29 @@ const WordCard = ({
       getKanjiResults();
     }
   }, [kanji]);
+
+  useEffect(() => {
+    const getVerbInfo = () => {
+      for (const sense of senses) {
+        if (
+          Array.isArray(sense.parts_of_speech) &&
+          sense.parts_of_speech.length > 0
+        ) {
+          return sense.parts_of_speech[0];
+        }
+      }
+    };
+
+    const getVerbType = (verbStringUpper) => {
+      const verbString = verbStringUpper.toLowerCase();
+      if (verbString.includes("ichidan")) {
+        setVerbType(true);
+      } else if (verbString.includes("godan")) {
+        setVerbType(false);
+      }
+    };
+    getVerbType(getVerbInfo());
+  }, []);
 
   return (
     // Displays a singular word information via dynamic rendering
@@ -287,7 +335,45 @@ const WordCard = ({
           {jlptLevelExists() && (
             <ThemedText>• JLPT Level: {getFirstJLPTLevel()}</ThemedText>
           )}
-
+          <View style={styles.lineHeader}>
+            <ThemedText type="defaultSemiBold">
+              Positive Conjugations
+            </ThemedText>
+          </View>
+          {/* Handles Verb Conjugations */}
+          <View>
+            {verbToConjugate && (verbType || !verbType) && (
+              <View>
+                <ThemedText>
+                  Dictionary:{" "}
+                  {codec.conjugate(verbToConjugate, "Dictionary", verbType)}
+                </ThemedText>
+                <ThemedText>
+                  Imperative:{" "}
+                  {codec.conjugate(verbToConjugate, "Imperative", verbType)}
+                </ThemedText>
+                <ThemedText>
+                  Past casual:{" "}
+                  {codec.conjugate(verbToConjugate, "Ta", verbType)}
+                </ThemedText>
+                <ThemedText>
+                  Tari: {codec.conjugate(verbToConjugate, "Tari", verbType)}
+                </ThemedText>
+                <ThemedText>
+                  Tara conditional:{" "}
+                  {codec.conjugate(verbToConjugate, "Tara", verbType)}
+                </ThemedText>
+                <ThemedText>
+                  Volitional:{" "}
+                  {codec.conjugate(verbToConjugate, "Volitional", verbType)}
+                </ThemedText>
+                <ThemedText>
+                  Dictionary Form:{" "}
+                  {codec.conjugate(verbToConjugate, "Te", verbType)}
+                </ThemedText>
+              </View>
+            )}
+          </View>
           <View style={styles.lineHeader}>
             <ThemedText type="defaultSemiBold">Kanji used</ThemedText>
           </View>
