@@ -88,11 +88,14 @@ const WordSearchBar = () => {
           results = await fetchEntryDetails(ent_ids, db);
         } else if (wanakana.isJapanese(wanakana.toHiragana(text))) {
           console.log("Searching in fourth");
+          const ent_ids2 = await searchByGloss(text, db);
           const ent_ids = await searchByReadingElement(
             wanakana.toHiragana(text),
             db
           );
-          results = await fetchEntryDetails(ent_ids, db);
+          console.log("Ent id 1: ", ent_ids);
+          console.log("Ent id 2: ", ent_ids2);
+          results = await fetchEntryDetails(ent_ids.concat(ent_ids2), db);
         }
 
         const endTime = performance.now();
@@ -102,8 +105,16 @@ const WordSearchBar = () => {
           )} ms, for word '${text}'`
         );
         const rawResults = Array.isArray(results) ? results : [];
-        const sortedResults = sortResultsByClosestGlossMatch(rawResults, text);
-        setSearchResults(sortedResults);
+        try {
+          const sortedResults = sortResultsByClosestGlossMatch(
+            rawResults,
+            text
+          );
+          setSearchResults(sortedResults);
+        } catch (error) {
+          setSearchResults(rawResults);
+          console.error("Error sorting words: ", error);
+        }
       } catch (error) {
         console.error("Error searching: ", error);
         Alert.alert("error", "Failed to search, try again.");
@@ -177,6 +188,7 @@ const WordSearchBar = () => {
       !wanakana.isJapanese(searchTerm)
     ) {
       return [...results].sort((a, b) => {
+        console.log("Sorting by sense");
         // Extract all glosses from senses (flattened)
         const glossesA = a.senses.flatMap((sense) => sense.gloss || []);
         const glossesB = b.senses.flatMap((sense) => sense.gloss || []);
@@ -189,6 +201,8 @@ const WordSearchBar = () => {
         return scoreB - scoreA;
       });
     } else if (!isKanji) {
+      console.log("Sorting by reading ele");
+      console.log(results);
       return [...results].sort((a, b) => {
         // Extract all glosses from senses (flattened)
 
@@ -215,6 +229,7 @@ const WordSearchBar = () => {
       });
     } else {
       return [...results].sort((a, b) => {
+        console.log("Sorting by kanji ele");
         // Extract all glosses from senses (flattened)
         const kInfoA = a.kanji_elements.flatMap(
           (kInfo) => kInfo.keb_element || []
