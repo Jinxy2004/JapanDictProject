@@ -15,7 +15,6 @@ import { useSQLiteContext } from "expo-sqlite";
 import { useNavigation } from "expo-router";
 import { useLayoutEffect } from "react";
 import { SettingsToggle } from "../ui/SettingsToggle";
-import { conjugate } from "@/util/conjugateWords";
 const wanakana = require("wanakana");
 const codec = require("kamiya-codec");
 
@@ -409,15 +408,6 @@ const WordCard = ({
                             Masu Conjugations
                           </ThemedText>
                         </View>
-                        <ThemedText>
-                          Masu Form:{" "}
-                          {(copyVerb ? copyVerb : "") +
-                            conjugate(
-                              verbToConjugate,
-                              { group: "Masu", form: "Positive" },
-                              verbType
-                            )}
-                        </ThemedText>
                       </View>
                     )}
                 </View>

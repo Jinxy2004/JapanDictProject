@@ -40,13 +40,13 @@ export default function Tab() {
   const openImagePicker = () => {
     ImagePicker.openPicker({
       multiple: false,
-      cropping: false,
+      cropping: true,
+      freeStyleCropEnabled: true,
       mediaType: "photo",
-      compressImageQuality: 0.8,
     }).then((image) => {
-      setSelectedImage(image.sourceURL);
+      setSelectedImage(image.path);
 
-      Image.getSize(image.sourceURL, (width, height) =>
+      Image.getSize(image.path, (width, height) =>
         setImageDimensions({ width, height })
       );
     });
@@ -56,9 +56,9 @@ export default function Tab() {
     ImagePicker.openCamera({
       cropping: false,
     }).then((image) => {
-      setSelectedImage(image.sourceURL);
+      setSelectedImage(image.path);
 
-      Image.getSize(image.sourceURL, (width, height) =>
+      Image.getSize(image.path, (width, height) =>
         setImageDimensions({ width, height })
       );
     });
@@ -69,8 +69,11 @@ export default function Tab() {
       setIsLoading(true);
       setError(null);
 
+      const uri = imageUri.startsWith("file://")
+        ? imageUri
+        : `file://${imageUri}`;
       const result = await TextRecognition.recognize(
-        imageUri,
+        uri,
         TextRecognitionScript.JAPANESE
       );
       let resultArray = [];
