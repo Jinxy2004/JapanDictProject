@@ -1,29 +1,41 @@
-type ConjugationGroup = "Masu";
-type ConjugationForm = "Positive" | "Negative" | "PositivePast" | "NegativePast";
+// npx tsx 
+type ConjugationGroup = "Masu" | "Polite";
+type MasuForm = "Positive" | "Negative" | "PositivePast" | "NegativePast";
+type PoliteForm = "Mashou" | "Tai" | "Potential";
+type ConjugationForm = MasuForm | PoliteForm;
 type VerbType = "ichidan" | "godan" | "suru" | "kuru";
 
 // Conjugation map that takes in a group like Masu form, the type of form within the group
 // and the returns the result via an inline function
-const conjugationMap: Record<ConjugationGroup, Record<ConjugationForm, (stem: string) => string>>  = {
-    Masu: {
-        Positive: (stem) => stem + "ます",
-        Negative: (stem) => stem + "ません",
-        PositivePast: (stem) => stem + "ました",
-        NegativePast: (stem) => stem + "ませんでした",
-    }
-}
+const conjugationMap: {
+  Masu: Record<MasuForm, (stem: string) => string>;
+  Polite: Record<PoliteForm, (stem: string) => string>;
+} = {
+  Masu: {
+    Positive: (stem) => stem + "ます",
+    Negative: (stem) => stem + "ません",
+    PositivePast: (stem) => stem + "ました",
+    NegativePast: (stem) => stem + "ませんでした",
+  },
+  Polite: {
+    Mashou: (stem) => stem + "ましょう",
+    Tai: (stem) => stem + "たいです",
+    Potential: (stem) => stem + "れる",
+  }
+};
 
 // List of all vowel steps
 const vowelStepMap: Record<string, Array<string>> = {
-    "む" : ["み"],
-    "す" : ["し"],
-    "う" : ["い"],
-    "ぬ" : ["に"],
-    "つ" : ["ち"],
-    "ぶ" : ["び"],
-    "く" : ["き"],
-    "ぐ" : ["ぎ"],
-    "る" : ["り"],
+    // I, A, U, E, O step
+    "む" : ["み","ま","む","め","も"],
+    "す" : ["し","さ","す","せ","そ"],
+    "う" : ["い","わ","う","え","お"],
+    "ぬ" : ["に","な","ぬ","ね","の"],
+    "つ" : ["ち","た","つ","て","と"],
+    "ぶ" : ["び","ば","ぶ","べ","ぼ"],
+    "く" : ["き","か","く","け","こ"],
+    "ぐ" : ["ぎ","が","ぐ","げ","ご"],
+    "る" : ["り","ら","る","れ","ろ"],
 }
 
 const extrasMap: Record<string, Array<string>> = {
@@ -74,7 +86,7 @@ function getKuruStem(verb: string, group: ConjugationGroup) {
     }
 }
  
-function conjugate(verb: string,{ group, form }: { group: ConjugationGroup; form: ConjugationForm }, 
+export function conjugate(verb: string,{ group, form }: { group: ConjugationGroup; form: ConjugationForm }, 
     verbType: VerbType = "ichidan") {
     if(!verb) return -1;
     if(verbType === "suru") {
@@ -101,6 +113,7 @@ function conjugate(verb: string,{ group, form }: { group: ConjugationGroup; form
 }
 
 console.log(conjugate("勉強する",{group: "Masu", form: "Positive"},"suru"));
+console.log(conjugate("勉強",{group: "Masu", form: "Positive"},"suru"));
 console.log(conjugate("願う",{group: "Masu", form: "Positive"},"godan"));
 console.log(conjugate("負ける",{group: "Masu", form: "Positive"},"ichidan"));
 console.log(conjugate("来る",{group: "Masu", form: "Positive"},"kuru"));

@@ -93,8 +93,6 @@ const WordSearchBar = () => {
             wanakana.toHiragana(text),
             db
           );
-          console.log("Ent id 1: ", ent_ids);
-          console.log("Ent id 2: ", ent_ids2);
           results = await fetchEntryDetails(ent_ids.concat(ent_ids2), db);
         }
 
@@ -188,7 +186,6 @@ const WordSearchBar = () => {
       !wanakana.isJapanese(searchTerm)
     ) {
       return [...results].sort((a, b) => {
-        console.log("Sorting by sense");
         // Extract all glosses from senses (flattened)
         const glossesA = a.senses.flatMap((sense) => sense.gloss || []);
         const glossesB = b.senses.flatMap((sense) => sense.gloss || []);
@@ -201,8 +198,6 @@ const WordSearchBar = () => {
         return scoreB - scoreA;
       });
     } else if (!isKanji) {
-      console.log("Sorting by reading ele");
-      console.log(results);
       return [...results].sort((a, b) => {
         // Extract all glosses from senses (flattened)
 
@@ -229,7 +224,6 @@ const WordSearchBar = () => {
       });
     } else {
       return [...results].sort((a, b) => {
-        console.log("Sorting by kanji ele");
         // Extract all glosses from senses (flattened)
         const kInfoA = a.kanji_elements.flatMap(
           (kInfo) => kInfo.keb_element || []

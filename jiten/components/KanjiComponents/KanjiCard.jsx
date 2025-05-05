@@ -33,7 +33,7 @@ const KanjiCard = ({
     navigation.setOptions({
       headerShown: true,
       headerTintColor: theme === "dark" ? "#fff" : "#000",
-      title: "N1",
+      title: "Kanji Info",
       headerStyle: {
         backgroundColor: theme === "dark" ? "#000" : "#fff",
       },

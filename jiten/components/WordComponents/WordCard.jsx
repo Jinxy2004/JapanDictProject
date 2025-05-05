@@ -15,6 +15,7 @@ import { useSQLiteContext } from "expo-sqlite";
 import { useNavigation } from "expo-router";
 import { useLayoutEffect } from "react";
 import { SettingsToggle } from "../ui/SettingsToggle";
+import { conjugate } from "@/util/conjugateWords";
 const wanakana = require("wanakana");
 const codec = require("kamiya-codec");
 
@@ -341,16 +342,17 @@ const WordCard = ({
           {jlptLevelExists() && (
             <ThemedText>• JLPT Level: {getFirstJLPTLevel()}</ThemedText>
           )}
-          <View style={styles.lineHeader}>
-            <ThemedText type="defaultSemiBold">
-              Positive Conjugations
-            </ThemedText>
-          </View>
+
           {/* Handles Verb Conjugations */}
           {(() => {
             try {
               return (
                 <View>
+                  <View style={styles.lineHeader}>
+                    <ThemedText type="defaultSemiBold">
+                      Positive Conjugations
+                    </ThemedText>
+                  </View>
                   {verbToConjugate &&
                     (verbType || !verbType) &&
                     verbType !== null && (
@@ -401,6 +403,20 @@ const WordCard = ({
                           Te Form:{" "}
                           {(copyVerb ? copyVerb : "") +
                             codec.conjugate(verbToConjugate, "Te", verbType)}
+                        </ThemedText>
+                        <View style={styles.lineHeader}>
+                          <ThemedText type="defaultSemiBold">
+                            Masu Conjugations
+                          </ThemedText>
+                        </View>
+                        <ThemedText>
+                          Masu Form:{" "}
+                          {(copyVerb ? copyVerb : "") +
+                            conjugate(
+                              verbToConjugate,
+                              { group: "Masu", form: "Positive" },
+                              verbType
+                            )}
                         </ThemedText>
                       </View>
                     )}
