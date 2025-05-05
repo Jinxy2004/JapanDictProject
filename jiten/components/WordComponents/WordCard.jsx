@@ -31,6 +31,7 @@ const WordCard = ({
   const [searchResults, setSearchResults] = useState([]);
   const [verbType, setVerbType] = useState("");
   const [verbToConjugate, setVerbToConjugate] = useState(null);
+  const [copyVerb, setCopyVerb] = useState(null);
   const navigation = useNavigation();
 
   useLayoutEffect(() => {
@@ -45,10 +46,7 @@ const WordCard = ({
     });
   }, [navigation, theme]);
 
-  useEffect(() => {
-    const primaryKEB = kanji_elements[0]?.keb_element || "";
-    setVerbToConjugate(primaryKEB);
-  }, []);
+  useEffect(() => {}, []);
 
   // Formats the dict references as they are objects within objects and need to be reformatted.
 
@@ -166,6 +164,8 @@ const WordCard = ({
   }, [kanji]);
 
   useEffect(() => {
+    const primaryKEB = kanji_elements[0]?.keb_element || "";
+    setVerbToConjugate(primaryKEB);
     const getVerbInfo = () => {
       for (const sense of senses) {
         if (
@@ -183,6 +183,12 @@ const WordCard = ({
         setVerbType(true);
       } else if (verbString.includes("godan")) {
         setVerbType(false);
+      } else if (verbString.includes("suru")) {
+        setVerbType(false);
+        setVerbToConjugate("する");
+        setCopyVerb(primaryKEB);
+      } else {
+        setVerbType(null);
       }
     };
     getVerbType(getVerbInfo());
@@ -341,39 +347,70 @@ const WordCard = ({
             </ThemedText>
           </View>
           {/* Handles Verb Conjugations */}
-          <View>
-            {verbToConjugate && (verbType || !verbType) && (
-              <View>
-                <ThemedText>
-                  Dictionary:{" "}
-                  {codec.conjugate(verbToConjugate, "Dictionary", verbType)}
-                </ThemedText>
-                <ThemedText>
-                  Imperative:{" "}
-                  {codec.conjugate(verbToConjugate, "Imperative", verbType)}
-                </ThemedText>
-                <ThemedText>
-                  Past casual:{" "}
-                  {codec.conjugate(verbToConjugate, "Ta", verbType)}
-                </ThemedText>
-                <ThemedText>
-                  Tari: {codec.conjugate(verbToConjugate, "Tari", verbType)}
-                </ThemedText>
-                <ThemedText>
-                  Tara conditional:{" "}
-                  {codec.conjugate(verbToConjugate, "Tara", verbType)}
-                </ThemedText>
-                <ThemedText>
-                  Volitional:{" "}
-                  {codec.conjugate(verbToConjugate, "Volitional", verbType)}
-                </ThemedText>
-                <ThemedText>
-                  Dictionary Form:{" "}
-                  {codec.conjugate(verbToConjugate, "Te", verbType)}
-                </ThemedText>
-              </View>
-            )}
-          </View>
+          {(() => {
+            try {
+              return (
+                <View>
+                  {verbToConjugate &&
+                    (verbType || !verbType) &&
+                    verbType !== null && (
+                      <View>
+                        <ThemedText>
+                          Dictionary:{" "}
+                          {(copyVerb ? copyVerb : "") +
+                            codec.conjugate(
+                              verbToConjugate,
+                              "Dictionary",
+                              verbType
+                            )}
+                        </ThemedText>
+                        <ThemedText>
+                          Imperative:{" "}
+                          {(copyVerb ? copyVerb : "") +
+                            codec.conjugate(
+                              verbToConjugate,
+                              "Imperative",
+                              verbType
+                            )[0]}
+                        </ThemedText>
+                        <ThemedText>
+                          Past casual:{" "}
+                          {(copyVerb ? copyVerb : "") +
+                            codec.conjugate(verbToConjugate, "Ta", verbType)}
+                        </ThemedText>
+                        <ThemedText>
+                          Tari:{" "}
+                          {(copyVerb ? copyVerb : "") +
+                            codec.conjugate(verbToConjugate, "Tari", verbType)}
+                        </ThemedText>
+                        <ThemedText>
+                          Tara conditional:{" "}
+                          {(copyVerb ? copyVerb : "") +
+                            codec.conjugate(verbToConjugate, "Tara", verbType)}
+                        </ThemedText>
+                        <ThemedText>
+                          Volitional:{" "}
+                          {(copyVerb ? copyVerb : "") +
+                            codec.conjugate(
+                              verbToConjugate,
+                              "Volitional",
+                              verbType
+                            )[0]}
+                        </ThemedText>
+                        <ThemedText>
+                          Te Form:{" "}
+                          {(copyVerb ? copyVerb : "") +
+                            codec.conjugate(verbToConjugate, "Te", verbType)}
+                        </ThemedText>
+                      </View>
+                    )}
+                </View>
+              );
+            } catch (err) {
+              console.error("Error: ", err);
+              return null;
+            }
+          })()}
           <View style={styles.lineHeader}>
             <ThemedText type="defaultSemiBold">Kanji used</ThemedText>
           </View>
