@@ -1,0 +1,5 @@
+DB creation will work for everything but JLPT level.
+JLPT information comes from here, https://github.com/aehlke/jlpt-classifier/tree/master
+
+kanjidic2 file - https://www.edrdg.org/kanjidic/kanjidic2.xml.gz
+jmdict file(run this) - wget "ftp://ftp.edrdg.org/pub/Nihongo/JMdict.gz" -OutFile "JMdict.gz" 
