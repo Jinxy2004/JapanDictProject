@@ -5,7 +5,7 @@ import {
   Image,
   Button,
 } from "react-native";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import TextRecognition, {
   TextRecognitionScript,
 } from "@react-native-ml-kit/text-recognition";
@@ -17,10 +17,8 @@ import {
   ScrollView,
 } from "react-native-gesture-handler";
 import PressableText from "@/components/OcrComponents/PressableText";
-import kuromoji from "@charlescoeder/react-native-kuromoji";
-import { Asset } from "expo-asset";
 import { useTheme } from "@/components/ThemeContext";
-import { InteractionManager } from "react-native";
+import { useTokenizer } from "../../contexts/TokenizerContext";
 
 export default function Tab() {
   const { theme } = useTheme();
@@ -29,13 +27,18 @@ export default function Tab() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [tokenizerLoading, setTokenizerLoading] = useState(false);
   const [imageDimensions, setImageDimensions] = useState({
     width: 0,
     height: 0,
   });
-  const tokenizerRef = useRef(null);
   const styles = getStyles(theme);
+
+  // Use tokenizer context
+  const {
+    tokenizer,
+    loading: tokenizerLoading,
+    error: tokenizerError,
+  } = useTokenizer();
 
   const openImagePicker = () => {
     ImagePicker.openPicker({
@@ -107,73 +110,15 @@ export default function Tab() {
   };
 
   useEffect(() => {
-    async function loadTokenizer() {
-      const assets = {
-        "base.dat.gz": Asset.fromModule(
-          require("../../../assets/dict/base.dat.gz")
-        ),
-        "cc.dat.gz": Asset.fromModule(
-          require("../../../assets/dict/cc.dat.gz")
-        ),
-        "check.dat.gz": Asset.fromModule(
-          require("../../../assets/dict/check.dat.gz")
-        ),
-        "tid.dat.gz": Asset.fromModule(
-          require("../../../assets/dict/tid.dat.gz")
-        ),
-        "tid_map.dat.gz": Asset.fromModule(
-          require("../../../assets/dict/tid_map.dat.gz")
-        ),
-        "tid_pos.dat.gz": Asset.fromModule(
-          require("../../../assets/dict/tid_pos.dat.gz")
-        ),
-        "unk.dat.gz": Asset.fromModule(
-          require("../../../assets/dict/unk.dat.gz")
-        ),
-        "unk_char.dat.gz": Asset.fromModule(
-          require("../../../assets/dict/unk_char.dat.gz")
-        ),
-        "unk_compat.dat.gz": Asset.fromModule(
-          require("../../../assets/dict/unk_compat.dat.gz")
-        ),
-        "unk_invoke.dat.gz": Asset.fromModule(
-          require("../../../assets/dict/unk_invoke.dat.gz")
-        ),
-        "unk_map.dat.gz": Asset.fromModule(
-          require("../../../assets/dict/unk_map.dat.gz")
-        ),
-        "unk_pos.dat.gz": Asset.fromModule(
-          require("../../../assets/dict/unk_pos.dat.gz")
-        ),
-      };
-      setTokenizerLoading(true);
-      InteractionManager.runAfterInteractions(() => {
-        kuromoji.builder({ assets }).build((err, tokenizer) => {
-          if (err) {
-            console.error("Kuromoji initialization error:", err);
-            setTokenizerLoading(false);
-            return;
-          }
-          tokenizerRef.current = tokenizer;
-          setTokenizerLoading(false);
-        });
-      });
-    }
-    loadTokenizer();
-    // Cleanup on unmount
-    return () => {
-      if (tokenizerRef.current) {
-        tokenizerRef.current = null;
+    if (recognizedText.length > 0 && tokenizer) {
+      try {
+        const tokenizedResult = tokenizer.tokenize(recognizedText);
+        setTokens(tokenizedResult);
+      } catch (e) {
+        console.error("Error tokenizing text: ", e);
       }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (recognizedText && tokenizerRef.current) {
-      const tokenizedResult = tokenizerRef.current.tokenize(recognizedText);
-      setTokens(tokenizedResult);
     }
-  }, [recognizedText]);
+  }, [recognizedText, tokenizer]);
 
   useEffect(() => {
     if (selectedImage) {
@@ -208,7 +153,7 @@ export default function Tab() {
     );
   }
 
-  if (error) {
+  if (error || tokenizerError) {
     return (
       <View
         style={[
@@ -217,7 +162,7 @@ export default function Tab() {
         ]}
       >
         <ThemedText>Error:</ThemedText>
-        <ThemedText>{error.message}</ThemedText>
+        <ThemedText>{(error || tokenizerError)?.message}</ThemedText>
         <Button title="Try Again" onPress={() => setError(null)} />
       </View>
     );
