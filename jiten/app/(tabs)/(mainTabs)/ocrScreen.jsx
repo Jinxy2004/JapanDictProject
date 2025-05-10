@@ -18,7 +18,7 @@ import {
 } from "react-native-gesture-handler";
 import PressableText from "@/components/OcrComponents/PressableText";
 import { useTheme } from "@/components/ThemeContext";
-import { useTokenizer } from "../../contexts/TokenizerContext";
+import { useTokenizer } from "../../../contexts/TokenizerContext";
 
 export default function Tab() {
   const { theme } = useTheme();
@@ -34,11 +34,7 @@ export default function Tab() {
   const styles = getStyles(theme);
 
   // Use tokenizer context
-  const {
-    tokenizer,
-    loading: tokenizerLoading,
-    error: tokenizerError,
-  } = useTokenizer();
+  const { tokenizer } = useTokenizer();
 
   const openImagePicker = () => {
     ImagePicker.openPicker({
@@ -126,19 +122,6 @@ export default function Tab() {
     }
   }, [selectedImage]);
 
-  if (tokenizerLoading) {
-    return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          { backgroundColor: theme === "dark" ? "#000000" : "#ffffff" },
-        ]}
-      >
-        <ActivityIndicator size="large" />
-        <ThemedText>Loading tokenizer...</ThemedText>
-      </SafeAreaView>
-    );
-  }
   if (isLoading) {
     return (
       <SafeAreaView
@@ -153,7 +136,7 @@ export default function Tab() {
     );
   }
 
-  if (error || tokenizerError) {
+  if (error) {
     return (
       <View
         style={[

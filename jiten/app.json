@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.jiten"
+      "bundleIdentifier": "com.anonymous.jiten",
     },
     "android": {
       "adaptiveIcon": {
@@ -28,8 +28,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "image": "./assets/images/dictIcon.png",
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
