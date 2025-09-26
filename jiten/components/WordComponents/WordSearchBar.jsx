@@ -13,7 +13,6 @@ import {
   searchByGloss,
   serachByKanjiElement,
   fetchEntryDetails,
-  checkDB,
 } from "../../util/searchWordDictionary.js";
 import {
   ScrollView,
